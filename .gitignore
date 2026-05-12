@@ -1,0 +1,6 @@
+*.zip
+__pycache__/
+*.pyc
+iran_*_v3.csv
+iran_*_v3_with_io.csv
+iran_*_v3_with_io_matrix.csv

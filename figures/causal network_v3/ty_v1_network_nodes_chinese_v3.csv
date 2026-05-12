@@ -1,0 +1,51 @@
+language,V1,total_occurrence,active_days,Code,Industry,ISIC_Rev4,ISIC Rev. 4 description
+Chinese,1,361.4102895,113,A01,Agriculture and hunting,1,"01 - Crop and animal production, hunting and related service activities"
+Chinese,2,447.7746318,113,A02,Forestry and logging,2,02 - Forestry and logging
+Chinese,3,258.36183029,113,A03,Fishing and aquaculture,3,03 - Fishing and aquaculture
+Chinese,4,124.80973956,113,B05,Mining of coal and lignite,5,05 - Mining of coal and lignite
+Chinese,5,490.04443534,113,B06,Extraction of crude petroleum and natural gas,6,06 - Extraction of crude petroleum and natural gas
+Chinese,6,161.77604198999998,113,B07,Mining of metal ores,7,07 - Mining of metal ores
+Chinese,7,161.066083,113,B08,Other mining and quarrying,8,08 - Other mining and quarrying
+Chinese,8,350.28387008000004,113,B09,Mining support service activities,9,09 - Mining support service activities
+Chinese,9,680.2818274900001,114,C10T12,Manufacture of food products; beverages and tobacco products,"10, 11, 12",10 - Manufacture of food products | 11 - Manufacture of beverages | 12 - Manufacture of tobacco products
+Chinese,10,556.9293006799999,113,C13T15,"Manufacture of textiles, wearing apparel, leather and related products","13, 14, 15",13 - Manufacture of textiles | 14 - Manufacture of wearing apparel | 15 - Manufacture of leather and related products
+Chinese,11,245.07979333,113,C16,Manufacture of wood and of products of wood and cork,16,"16 - Manufacture of wood and of products of wood and cork, except furniture; manufacture of articles of straw and plaiting materials"
+Chinese,12,832.7600995299999,114,C17_18,Manufacture of paper and paper products; Printing and reproduction of recorded media,"17, 18",17 - Manufacture of paper and paper products | 18 - Printing and reproduction of recorded media
+Chinese,13,231.53863187,113,C19,Manufacture of coke and refined petroleum products,19,19 - Manufacture of coke and refined petroleum products
+Chinese,14,274.42779746,114,C20,Manufacture of chemicals and chemical products,20,20 - Manufacture of chemicals and chemical products
+Chinese,15,234.53441589,114,C21,Manufacture of basic pharmaceutical products and pharmaceutical preparations,21,21 - Manufacture of basic pharmaceutical products and pharmaceutical preparations
+Chinese,16,233.39054853,113,C22,Manufacture of rubber and plastic products,22,22 - Manufacture of rubber and plastics products
+Chinese,17,304.20958523,113,C23,Manufacture of other non-metallic mineral products,23,23 - Manufacture of other non-metallic mineral products
+Chinese,18,136.4998294,113,C24A,Manufacture of basic iron and steel,"241, 2431",241 - Manufacture of basic iron and steel | 2431 - Casting of iron and steel
+Chinese,19,203.84658819,113,C24B,Manufacture of basic precious and other non-ferrous metals,"242, 2432",242 - Manufacture of basic precious and other non-ferrous metals | 2432 - Casting of non-ferrous metals
+Chinese,20,313.55450084000006,114,C25,Manufacture of fabricated metal products,25,"25 - Manufacture of fabricated metal products, except machinery and equipment"
+Chinese,21,270.45867624000005,113,C26,"Manufacture of computer, electronic and optical products",26,"26 - Manufacture of computer, electronic and optical products"
+Chinese,22,208.42484868000005,114,C27,Manufacture of electrical equipment,27,27 - Manufacture of electrical equipment
+Chinese,23,346.16116587000005,114,C28,Manufacture of machinery and equipment n.e.c. ,28,28 - Manufacture of machinery and equipment n.e.c.
+Chinese,24,188.06792673,113,C29,"Manufacture of motor vehicles, trailers and semi-trailers",29,"29 - Manufacture of motor vehicles, trailers and semi-trailers"
+Chinese,25,450.7451300300001,113,C301,Building of ships and boats,301,301 - Building of ships and boats
+Chinese,26,863.31274407,114,C302T309,Manufacture of other transport equipment,302 to 309,302 - Manufacture of railway locomotives and rolling stock | 303 - Manufacture of air and spacecraft and related machinery | 304 - Manufacture of military fighting vehicles | 309 - Manufacture of transport equipment n.e.c.
+Chinese,27,287.26402448,114,C31T33,Manufacture of furniture; other manufacturing; repair and installation of machinery and equipment,"31, 32, 33",31 - Manufacture of furniture | 32 - Other manufacturing | 33 - Repair and installation of machinery and equipment
+Chinese,28,673.6168094,114,D,"Electricity, gas, steam and air conditioning supply",35,"35 - Electricity, gas, steam and air conditioning supply"
+Chinese,29,535.33489798,113,E,"Water supply; sewerage, waste management and remediation activities","36, 37, 38, 39","36 - Water collection, treatment and supply | 37 - Sewerage | 38 - Waste collection, treatment and disposal activities; materials recovery | 39 - Remediation activities and other waste management services"
+Chinese,30,269.92882462,114,F,Construction,"41, 42, 43",41 - Construction of buildings | 42 - Civil engineering | 43 - Specialized construction activities
+Chinese,31,284.79551894,113,G,Wholesale and retail trade; repair of motor vehicles and motorcycles,"45, 46, 47","45 - Wholesale and retail trade and repair of motor vehicles and motorcycles | 46 - Wholesale trade, except of motor vehicles and motorcycles | 47 - Retail trade, except of motor vehicles and motorcycles"
+Chinese,32,393.48058398,113,H49,Land transport and transport via pipelines,49,49 - Land transport and transport via pipelines
+Chinese,33,607.79115565,113,H50,Water transport,50,50 - Water transport
+Chinese,34,597.49194251,114,H51,Air transport,51,51 - Air transport
+Chinese,35,496.08994106000006,113,H52,Warehousing and support activities for transportation,52,52 - Warehousing and support activities for transportation
+Chinese,36,140.46074066999998,113,H53,Postal and courier activities,53,53 - Postal and courier activities
+Chinese,37,301.64702703,113,I,Accommodation and food service activities,"55, 56",55 - Accommodation | 56 - Food and beverage service activities
+Chinese,38,501.64943752,113,J58T60,"Publishing, Motion picture, video, television programme production and broadcasting activities","58, 59, 60","58 - Publishing activities | 59 - Motion picture, video and television programme production, sound recording and music publishing activities | 60 - Programming and broadcasting activities"
+Chinese,39,81.93020417000001,113,J61,Telecommunications,61,61 - Telecommunications
+Chinese,40,396.43774286000007,113,J62_63,Computer programming and information service activities,"62, 63","62 - Computer programming, consultancy and related activities | 63 - Information service activities"
+Chinese,41,573.5350206399999,113,K,Financial and insurance activities,"64, 65, 66","64 - Financial service activities, except insurance and pension funding | 65 - Insurance, reinsurance and pension funding, except compulsory social security | 66 - Activities auxiliary to financial service and insurance activities"
+Chinese,42,305.57365260999995,113,L,Real estate activities,68,68 - Real estate activities
+Chinese,43,645.4428961100001,114,M,"Professional, scientific and technical activities",69 to 75,"69 - Legal and accounting activities | 70 - Activities of head offices; management consultancy activities | 71 - Architectural and engineering activities; technical testing and analysis | 72 - Scientific research and development | 73 - Advertising and market research | 74 - Other professional, scientific and technical activities | 75 - Veterinary activities"
+Chinese,44,904.50497553,114,N,Administrative and support service activities,77 to 82,"77 - Rental and leasing activities | 78 - Employment activities | 79 - Travel agency, tour operator, reservation service and related activities | 80 - Security and investigation activities | 81 - Services to buildings and landscape activities | 82 - Office administrative, office support and other business support activities"
+Chinese,45,1115.53754839,113,O,Public administration and defence; compulsory social security,84,84 - Public administration and defence; compulsory social security
+Chinese,46,124.06577123,113,P,Education,85,85 - Education
+Chinese,47,691.62984171,113,Q,Human health and social work activities,"86, 87, 88",86 - Human health activities | 87 - Residential care activities | 88 - Social work activities without accommodation
+Chinese,48,248.28348458,114,R,"Arts, entertainment and recreation activities","90, 91, 92, 93","90 - Creative, arts and entertainment activities | 91 - Libraries, archives, museums and other cultural activities | 92 - Gambling and betting activities | 93 - Sports activities and amusement and recreation activities"
+Chinese,49,304.16387867,113,S,Other service activities,"94,95, 96",94 - Activities of membership organizations | 95 - Repair of computers and personal and household goods | 96 - Other personal service activities
+Chinese,50,576.59374652,114,T,Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use,"97, 98",97 - Activities of households as employers of domestic personnel | 98 - Undifferentiated goods- and services-producing activities of private households for own use

@@ -1,0 +1,51 @@
+language,V1,total_occurrence,active_days,Code,Industry,ISIC_Rev4,ISIC Rev. 4 description
+Arabic,1,416.40676716,113,A01,Agriculture and hunting,1,"01 - Crop and animal production, hunting and related service activities"
+Arabic,2,154.98132614999997,111,A02,Forestry and logging,2,02 - Forestry and logging
+Arabic,3,137.98983888000004,111,A03,Fishing and aquaculture,3,03 - Fishing and aquaculture
+Arabic,4,102.41759899,112,B05,Mining of coal and lignite,5,05 - Mining of coal and lignite
+Arabic,5,352.64680384,111,B06,Extraction of crude petroleum and natural gas,6,06 - Extraction of crude petroleum and natural gas
+Arabic,6,108.92644840999999,111,B07,Mining of metal ores,7,07 - Mining of metal ores
+Arabic,7,93.74307810999998,112,B08,Other mining and quarrying,8,08 - Other mining and quarrying
+Arabic,8,433.9132685,113,B09,Mining support service activities,9,09 - Mining support service activities
+Arabic,9,895.88651295,113,C10T12,Manufacture of food products; beverages and tobacco products,"10, 11, 12",10 - Manufacture of food products | 11 - Manufacture of beverages | 12 - Manufacture of tobacco products
+Arabic,10,789.0716016800001,112,C13T15,"Manufacture of textiles, wearing apparel, leather and related products","13, 14, 15",13 - Manufacture of textiles | 14 - Manufacture of wearing apparel | 15 - Manufacture of leather and related products
+Arabic,11,241.71214358,112,C16,Manufacture of wood and of products of wood and cork,16,"16 - Manufacture of wood and of products of wood and cork, except furniture; manufacture of articles of straw and plaiting materials"
+Arabic,12,899.51055866,111,C17_18,Manufacture of paper and paper products; Printing and reproduction of recorded media,"17, 18",17 - Manufacture of paper and paper products | 18 - Printing and reproduction of recorded media
+Arabic,13,228.71320680000002,112,C19,Manufacture of coke and refined petroleum products,19,19 - Manufacture of coke and refined petroleum products
+Arabic,14,401.64686108999996,112,C20,Manufacture of chemicals and chemical products,20,20 - Manufacture of chemicals and chemical products
+Arabic,15,457.20766992999995,111,C21,Manufacture of basic pharmaceutical products and pharmaceutical preparations,21,21 - Manufacture of basic pharmaceutical products and pharmaceutical preparations
+Arabic,16,222.88298103,112,C22,Manufacture of rubber and plastic products,22,22 - Manufacture of rubber and plastics products
+Arabic,17,259.30367793,112,C23,Manufacture of other non-metallic mineral products,23,23 - Manufacture of other non-metallic mineral products
+Arabic,18,155.29090502,111,C24A,Manufacture of basic iron and steel,"241, 2431",241 - Manufacture of basic iron and steel | 2431 - Casting of iron and steel
+Arabic,19,253.98123220000002,111,C24B,Manufacture of basic precious and other non-ferrous metals,"242, 2432",242 - Manufacture of basic precious and other non-ferrous metals | 2432 - Casting of non-ferrous metals
+Arabic,20,247.79215763,113,C25,Manufacture of fabricated metal products,25,"25 - Manufacture of fabricated metal products, except machinery and equipment"
+Arabic,21,222.95541049000002,111,C26,"Manufacture of computer, electronic and optical products",26,"26 - Manufacture of computer, electronic and optical products"
+Arabic,22,261.81761957000003,111,C27,Manufacture of electrical equipment,27,27 - Manufacture of electrical equipment
+Arabic,23,773.19520427,111,C28,Manufacture of machinery and equipment n.e.c. ,28,28 - Manufacture of machinery and equipment n.e.c.
+Arabic,24,199.90932689,112,C29,"Manufacture of motor vehicles, trailers and semi-trailers",29,"29 - Manufacture of motor vehicles, trailers and semi-trailers"
+Arabic,25,519.60783825,111,C301,Building of ships and boats,301,301 - Building of ships and boats
+Arabic,26,1174.17911269,113,C302T309,Manufacture of other transport equipment,302 to 309,302 - Manufacture of railway locomotives and rolling stock | 303 - Manufacture of air and spacecraft and related machinery | 304 - Manufacture of military fighting vehicles | 309 - Manufacture of transport equipment n.e.c.
+Arabic,27,253.79601264999997,111,C31T33,Manufacture of furniture; other manufacturing; repair and installation of machinery and equipment,"31, 32, 33",31 - Manufacture of furniture | 32 - Other manufacturing | 33 - Repair and installation of machinery and equipment
+Arabic,28,753.43683515,111,D,"Electricity, gas, steam and air conditioning supply",35,"35 - Electricity, gas, steam and air conditioning supply"
+Arabic,29,381.81745005,112,E,"Water supply; sewerage, waste management and remediation activities","36, 37, 38, 39","36 - Water collection, treatment and supply | 37 - Sewerage | 38 - Waste collection, treatment and disposal activities; materials recovery | 39 - Remediation activities and other waste management services"
+Arabic,30,279.2941875,111,F,Construction,"41, 42, 43",41 - Construction of buildings | 42 - Civil engineering | 43 - Specialized construction activities
+Arabic,31,405.14541062,111,G,Wholesale and retail trade; repair of motor vehicles and motorcycles,"45, 46, 47","45 - Wholesale and retail trade and repair of motor vehicles and motorcycles | 46 - Wholesale trade, except of motor vehicles and motorcycles | 47 - Retail trade, except of motor vehicles and motorcycles"
+Arabic,32,351.09477642,111,H49,Land transport and transport via pipelines,49,49 - Land transport and transport via pipelines
+Arabic,33,449.41651965000005,111,H50,Water transport,50,50 - Water transport
+Arabic,34,706.7766874799999,111,H51,Air transport,51,51 - Air transport
+Arabic,35,474.84725546,112,H52,Warehousing and support activities for transportation,52,52 - Warehousing and support activities for transportation
+Arabic,36,130.75734951,111,H53,Postal and courier activities,53,53 - Postal and courier activities
+Arabic,37,226.56850902,112,I,Accommodation and food service activities,"55, 56",55 - Accommodation | 56 - Food and beverage service activities
+Arabic,38,833.2501837100001,112,J58T60,"Publishing, Motion picture, video, television programme production and broadcasting activities","58, 59, 60","58 - Publishing activities | 59 - Motion picture, video and television programme production, sound recording and music publishing activities | 60 - Programming and broadcasting activities"
+Arabic,39,97.38056354000001,111,J61,Telecommunications,61,61 - Telecommunications
+Arabic,40,373.70291333,112,J62_63,Computer programming and information service activities,"62, 63","62 - Computer programming, consultancy and related activities | 63 - Information service activities"
+Arabic,41,563.7901757,112,K,Financial and insurance activities,"64, 65, 66","64 - Financial service activities, except insurance and pension funding | 65 - Insurance, reinsurance and pension funding, except compulsory social security | 66 - Activities auxiliary to financial service and insurance activities"
+Arabic,42,279.41126951000007,111,L,Real estate activities,68,68 - Real estate activities
+Arabic,43,655.61632897,113,M,"Professional, scientific and technical activities",69 to 75,"69 - Legal and accounting activities | 70 - Activities of head offices; management consultancy activities | 71 - Architectural and engineering activities; technical testing and analysis | 72 - Scientific research and development | 73 - Advertising and market research | 74 - Other professional, scientific and technical activities | 75 - Veterinary activities"
+Arabic,44,1047.1566271800002,113,N,Administrative and support service activities,77 to 82,"77 - Rental and leasing activities | 78 - Employment activities | 79 - Travel agency, tour operator, reservation service and related activities | 80 - Security and investigation activities | 81 - Services to buildings and landscape activities | 82 - Office administrative, office support and other business support activities"
+Arabic,45,1804.82641997,112,O,Public administration and defence; compulsory social security,84,84 - Public administration and defence; compulsory social security
+Arabic,46,133.97322834,111,P,Education,85,85 - Education
+Arabic,47,690.8304152600001,112,Q,Human health and social work activities,"86, 87, 88",86 - Human health activities | 87 - Residential care activities | 88 - Social work activities without accommodation
+Arabic,48,330.18082454000006,111,R,"Arts, entertainment and recreation activities","90, 91, 92, 93","90 - Creative, arts and entertainment activities | 91 - Libraries, archives, museums and other cultural activities | 92 - Gambling and betting activities | 93 - Sports activities and amusement and recreation activities"
+Arabic,49,291.66746941,112,S,Other service activities,"94,95, 96",94 - Activities of membership organizations | 95 - Repair of computers and personal and household goods | 96 - Other personal service activities
+Arabic,50,571.57343596,112,T,Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use,"97, 98",97 - Activities of households as employers of domestic personnel | 98 - Undifferentiated goods- and services-producing activities of private households for own use
