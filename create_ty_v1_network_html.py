@@ -388,7 +388,7 @@ def build_html(data: dict, version: str, stagger_nodes: bool, hover_selection: b
     </div>
     <aside>
       <div class="stat"><span>Visible edges</span><strong id="edgeCount">0</strong></div>
-      <div class="stat"><span>Visible nodes</span><strong id="nodeCount">50</strong></div>
+      <div class="stat"><span>Linked nodes</span><strong id="nodeCount">0</strong></div>
       <div class="stat"><span>Mean visible r</span><strong id="meanR">0.00</strong></div>
       <div class="stat"><span>Mean lead day</span><strong id="meanLead">0.0</strong></div>
       <div class="legend">
@@ -549,10 +549,15 @@ function render() {{
   }}
   svg.appendChild(nodeLayer);
 
+  const linkedNodes = new Set();
+  for (const edge of renderedEdges) {{
+    linkedNodes.add(edge.s);
+    linkedNodes.add(edge.t);
+  }}
   const meanR = renderedEdges.length ? renderedEdges.reduce((s, e) => s + e.bestR, 0) / renderedEdges.length : 0;
   const meanLead = renderedEdges.length ? renderedEdges.reduce((s, e) => s + e.lead, 0) / renderedEdges.length : 0;
   document.getElementById("edgeCount").textContent = String(renderedEdges.length);
-  document.getElementById("nodeCount").textContent = "50";
+  document.getElementById("nodeCount").textContent = String(linkedNodes.size);
   document.getElementById("meanR").textContent = meanR.toFixed(2);
   document.getElementById("meanLead").textContent = meanLead.toFixed(1);
 }}
