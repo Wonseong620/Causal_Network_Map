@@ -175,7 +175,7 @@
       stroke-linejoin: round;
     }
     .title {
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 800;
       text-anchor: middle;
     }
@@ -208,7 +208,7 @@
 <body>
 <div class="app">
   <header>
-    <h1>Interactive Causal Network Map</h1>
+    <h1 id="pageTitle">Interactive Causal Network Map</h1>
     <div class="controls">
       <label>Language
         <select id="language">
@@ -339,11 +339,19 @@ function el(name, attrs = {}, text = "") {
   return node;
 }
 
+function networkTitle(language) {
+  return `${language} Media Lead-Lag by Sectors`;
+}
+
 function render() {
   const language = controls.language.value;
+  const titleText = networkTitle(language);
   const corrMin = Number(controls.corr.value);
   const maxLead = Number(controls.lead.value);
   const tyRequired = Number(controls.ty.value);
+  document.title = titleText;
+  document.getElementById("pageTitle").textContent = "Interactive Causal Network Map";
+  svg.setAttribute("aria-label", titleText);
   document.getElementById("corrValue").textContent = corrMin.toFixed(2);
   document.getElementById("leadValue").textContent = String(maxLead);
 
@@ -378,7 +386,7 @@ function render() {
   defs.appendChild(marker);
   svg.appendChild(defs);
 
-  svg.appendChild(el("text", { x: 500, y: 46, class: "title" }, `Toda-Yamamoto Causal Network: ${language} V1 Sectors`));
+  svg.appendChild(el("text", { x: 500, y: 46, class: "title" }, titleText));
   svg.appendChild(el("text", { x: 500, y: 76, class: "subtitle" },
     `50 V1 sectors | ${renderedEdges.length} rendered / ${visibleEdges.length} matched edges | r >= ${corrMin.toFixed(2)} | max lead <= ${maxLead}d | TY=${tyRequired}`
   ));
@@ -466,7 +474,7 @@ function downloadPng() {
     .node text { fill: white; font-size: 10px; font-weight: 800; text-anchor: middle; dominant-baseline: central; font-family: Arial, Helvetica, sans-serif; }
     .edge { fill: none; stroke: #0072bd; stroke-linecap: round; opacity: .43; }
     .edge-label { fill: #0072bd; font-size: 7px; font-weight: 700; font-family: Arial, Helvetica, sans-serif; paint-order: stroke; stroke: white; stroke-width: 3px; stroke-linejoin: round; }
-    .title { font-size: 22px; font-weight: 800; text-anchor: middle; font-family: Arial, Helvetica, sans-serif; }
+    .title { font-size: 18px; font-weight: 800; text-anchor: middle; font-family: Arial, Helvetica, sans-serif; }
     .subtitle { fill: #20262d; font-size: 13px; font-weight: 700; text-anchor: middle; font-family: Arial, Helvetica, sans-serif; }
   `;
   clone.insertBefore(style, clone.firstChild);
