@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+title: >-
+  Causal Network Map: interactive viewer and replication package for
+  "Qualitative Shock Mapping for Quantitative Production Network Models:
+  Evidence from Iran-Related Hostilities"
+message: >-
+  If you use this software or data, please cite the accompanying
+  article and this archive.
+type: software
+authors:
+  - family-names: Kim
+    given-names: Wonseong
+    email: kimwonseong@iiasa.ac.at
+    affiliation: International Institute for Applied Systems Analysis (IIASA)
+  - family-names: Erokhin
+    given-names: Dmitry
+    affiliation: International Institute for Applied Systems Analysis (IIASA)
+repository-code: "https://github.com/Wonseong620/Causal_Network_Map"
+url: "https://wonseong620.github.io/Causal_Network_Map/"
+abstract: >-
+  Interactive lead-lag network viewer and a curated replication package
+  for a news-based sectoral shock-mapping framework applied to
+  Iran-related hostilities. The package contains derived daily sectoral
+  indicators and within-day share-transformed series by language,
+  article-level sector-probability vectors (lexical TF-IDF and zero-shot
+  LLM classifiers), full pairwise Toda-Yamamoto lead-lag edge tables with
+  false-discovery-rate flags, the world-average input-output coefficient
+  matrix and input-output alignment statistics, the 50-sector ICIO V1
+  lookup, the LLM classification prompt, and all analysis and
+  figure-generation scripts. Raw article text is not redistributed. Code
+  is released under the MIT License; datasets under replication/data/ are
+  released under CC BY 4.0.
+keywords:
+  - qualitative data
+  - input-output analysis
+  - geopolitical risk
+  - production networks
+  - text as data
+  - shock indicators
+license: MIT
+version: 1.0.0
+date-released: "2026-07-08"

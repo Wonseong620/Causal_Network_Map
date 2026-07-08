@@ -1,0 +1,5 @@
+language,articles,PC1_pct,mean_abs_r,pairs_tested,raw_p05,fdr_5pct,fdr_mean_abs_r,fdr_median_lead
+arabic,22092,52.4,0.439,2450,493,69,0.433,3.0
+chinese,19987,43.9,0.38,2450,337,31,0.424,2.0
+english,10529,44.4,0.365,2450,512,114,0.425,2.0
+persian,5922,56.2,0.477,2450,314,15,0.412,2.0

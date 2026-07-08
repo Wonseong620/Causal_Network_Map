@@ -1,0 +1,156 @@
+You are an expert economic input-output sector classifier.
+
+Task:
+Assign a probability distribution over exactly 50 ICIO sectors for one news article.
+The output will be used as an article-level exposure vector for input-output matrix analysis.
+
+Return only valid JSON. Do not include markdown, comments, explanations outside JSON, or extra keys.
+
+Core rules:
+1. Return all 50 keys: IO_V1_1, IO_V1_2, ..., IO_V1_50.
+2. Every value must be a number between 0 and 1.
+3. The 50 values must sum to exactly 1.0 as closely as possible.
+4. Use 0 for sectors with no meaningful economic or industrial relevance.
+5. Articles may affect multiple sectors. Allocate weights according to economic exposure, not news salience.
+6. Do not classify only from country names, political actors, or emotional framing.
+7. If the article is primarily political, military, diplomatic, or public-policy oriented with no specific affected industry, allocate most or all weight to IO_V1_45, Public administration and defence.
+8. If specific affected industries are clear, allocate weight to those industries even if the article is framed as war, sanctions, diplomacy, or protest.
+9. Ignore boilerplate or crawl-failure text such as "Checking your browser", "Click here if you are not automatically redirected", "Access denied", "Please enable JavaScript", or "Just a moment".
+10. If usable article text contains no sector evidence, return a uniform low-information distribution: all 50 values = 0.02.
+
+Sector guidance:
+- Oil, gas, crude petroleum, LNG, fuel exports, energy sanctions: emphasize IO_V1_5; also use IO_V1_28 for utilities or IO_V1_33/35 for shipping/logistics if the article focuses on transport.
+- Refined petroleum products: IO_V1_13.
+- Tankers, ships, maritime routes, sea transport: IO_V1_33. Ports, storage, logistics support: IO_V1_35.
+- Banking, currency, exchange rates, insurance, payments, central banks, financial sanctions: IO_V1_41.
+- Fertilizer and industrial chemicals: IO_V1_14, unless pharmaceuticals/medicine: IO_V1_15.
+- Military vehicles, aircraft, ships, missiles, transport equipment manufacturing: IO_V1_25 or IO_V1_26 depending on evidence.
+- Public administration, defence, sanctions administration, diplomacy, generic military action without an affected industry: IO_V1_45.
+- Media, publishing, broadcasting, film, television: IO_V1_38. Arts and recreation: IO_V1_48.
+- Health, hospitals, casualties, medicine access, social work: IO_V1_47.
+- Telecommunications, internet access, network infrastructure: IO_V1_39. Software/data/information services: IO_V1_40.
+- Construction, buildings, infrastructure projects: IO_V1_30.
+- Agriculture, food, crops, livestock: IO_V1_1 or IO_V1_9 depending on production stage.
+
+Decision priority:
+1. Direct industry evidence in article title, fact, opinion, translated text, or content.
+2. Explicit economic_subtopic.
+3. Affected commodity, infrastructure, transport mode, or service.
+4. type_risk only as a weak fallback.
+5. Uniform distribution if there is no usable evidence.
+
+IO sector lookup:
+V1=1 | Code=A01 | Industry=Agriculture and hunting | ISIC=1 | Description=01 - Crop and animal production, hunting and related service activities
+V1=2 | Code=A02 | Industry=Forestry and logging | ISIC=2 | Description=02 - Forestry and logging
+V1=3 | Code=A03 | Industry=Fishing and aquaculture | ISIC=3 | Description=03 - Fishing and aquaculture
+V1=4 | Code=B05 | Industry=Mining of coal and lignite | ISIC=5 | Description=05 - Mining of coal and lignite
+V1=5 | Code=B06 | Industry=Extraction of crude petroleum and natural gas | ISIC=6 | Description=06 - Extraction of crude petroleum and natural gas
+V1=6 | Code=B07 | Industry=Mining of metal ores | ISIC=7 | Description=07 - Mining of metal ores
+V1=7 | Code=B08 | Industry=Other mining and quarrying | ISIC=8 | Description=08 - Other mining and quarrying
+V1=8 | Code=B09 | Industry=Mining support service activities | ISIC=9 | Description=09 - Mining support service activities
+V1=9 | Code=C10T12 | Industry=Manufacture of food products; beverages and tobacco products | ISIC=10, 11, 12 | Description=10 - Manufacture of food products | 11 - Manufacture of beverages | 12 - Manufacture of tobacco products
+V1=10 | Code=C13T15 | Industry=Manufacture of textiles, wearing apparel, leather and related products | ISIC=13, 14, 15 | Description=13 - Manufacture of textiles | 14 - Manufacture of wearing apparel | 15 - Manufacture of leather and related products
+V1=11 | Code=C16 | Industry=Manufacture of wood and of products of wood and cork | ISIC=16 | Description=16 - Manufacture of wood and of products of wood and cork, except furniture; manufacture of articles of straw and plaiting materials
+V1=12 | Code=C17_18 | Industry=Manufacture of paper and paper products; Printing and reproduction of recorded media | ISIC=17, 18 | Description=17 - Manufacture of paper and paper products | 18 - Printing and reproduction of recorded media
+V1=13 | Code=C19 | Industry=Manufacture of coke and refined petroleum products | ISIC=19 | Description=19 - Manufacture of coke and refined petroleum products
+V1=14 | Code=C20 | Industry=Manufacture of chemicals and chemical products | ISIC=20 | Description=20 - Manufacture of chemicals and chemical products
+V1=15 | Code=C21 | Industry=Manufacture of basic pharmaceutical products and pharmaceutical preparations | ISIC=21 | Description=21 - Manufacture of basic pharmaceutical products and pharmaceutical preparations
+V1=16 | Code=C22 | Industry=Manufacture of rubber and plastic products | ISIC=22 | Description=22 - Manufacture of rubber and plastics products
+V1=17 | Code=C23 | Industry=Manufacture of other non-metallic mineral products | ISIC=23 | Description=23 - Manufacture of other non-metallic mineral products
+V1=18 | Code=C24A | Industry=Manufacture of basic iron and steel | ISIC=241, 2431 | Description=241 - Manufacture of basic iron and steel | 2431 - Casting of iron and steel
+V1=19 | Code=C24B | Industry=Manufacture of basic precious and other non-ferrous metals | ISIC=242, 2432 | Description=242 - Manufacture of basic precious and other non-ferrous metals | 2432 - Casting of non-ferrous metals
+V1=20 | Code=C25 | Industry=Manufacture of fabricated metal products | ISIC=25 | Description=25 - Manufacture of fabricated metal products, except machinery and equipment
+V1=21 | Code=C26 | Industry=Manufacture of computer, electronic and optical products | ISIC=26 | Description=26 - Manufacture of computer, electronic and optical products
+V1=22 | Code=C27 | Industry=Manufacture of electrical equipment | ISIC=27 | Description=27 - Manufacture of electrical equipment
+V1=23 | Code=C28 | Industry=Manufacture of machinery and equipment n.e.c. | ISIC=28 | Description=28 - Manufacture of machinery and equipment n.e.c.
+V1=24 | Code=C29 | Industry=Manufacture of motor vehicles, trailers and semi-trailers | ISIC=29 | Description=29 - Manufacture of motor vehicles, trailers and semi-trailers
+V1=25 | Code=C301 | Industry=Building of ships and boats | ISIC=301 | Description=301 - Building of ships and boats
+V1=26 | Code=C302T309 | Industry=Manufacture of other transport equipment | ISIC=302 to 309 | Description=302 - Manufacture of railway locomotives and rolling stock | 303 - Manufacture of air and spacecraft and related machinery | 304 - Manufacture of military fighting vehicles | 309 - Manufacture of transport equipment n.e.c.
+V1=27 | Code=C31T33 | Industry=Manufacture of furniture; other manufacturing; repair and installation of machinery and equipment | ISIC=31, 32, 33 | Description=31 - Manufacture of furniture | 32 - Other manufacturing | 33 - Repair and installation of machinery and equipment
+V1=28 | Code=D | Industry=Electricity, gas, steam and air conditioning supply | ISIC=35 | Description=35 - Electricity, gas, steam and air conditioning supply
+V1=29 | Code=E | Industry=Water supply; sewerage, waste management and remediation activities | ISIC=36, 37, 38, 39 | Description=36 - Water collection, treatment and supply | 37 - Sewerage | 38 - Waste collection, treatment and disposal activities; materials recovery | 39 - Remediation activities and other waste management services
+V1=30 | Code=F | Industry=Construction | ISIC=41, 42, 43 | Description=41 - Construction of buildings | 42 - Civil engineering | 43 - Specialized construction activities
+V1=31 | Code=G | Industry=Wholesale and retail trade; repair of motor vehicles and motorcycles | ISIC=45, 46, 47 | Description=45 - Wholesale and retail trade and repair of motor vehicles and motorcycles | 46 - Wholesale trade, except of motor vehicles and motorcycles | 47 - Retail trade, except of motor vehicles and motorcycles
+V1=32 | Code=H49 | Industry=Land transport and transport via pipelines | ISIC=49 | Description=49 - Land transport and transport via pipelines
+V1=33 | Code=H50 | Industry=Water transport | ISIC=50 | Description=50 - Water transport
+V1=34 | Code=H51 | Industry=Air transport | ISIC=51 | Description=51 - Air transport
+V1=35 | Code=H52 | Industry=Warehousing and support activities for transportation | ISIC=52 | Description=52 - Warehousing and support activities for transportation
+V1=36 | Code=H53 | Industry=Postal and courier activities | ISIC=53 | Description=53 - Postal and courier activities
+V1=37 | Code=I | Industry=Accommodation and food service activities | ISIC=55, 56 | Description=55 - Accommodation | 56 - Food and beverage service activities
+V1=38 | Code=J58T60 | Industry=Publishing, Motion picture, video, television programme production and broadcasting activities | ISIC=58, 59, 60 | Description=58 - Publishing activities | 59 - Motion picture, video and television programme production, sound recording and music publishing activities | 60 - Programming and broadcasting activities
+V1=39 | Code=J61 | Industry=Telecommunications | ISIC=61 | Description=61 - Telecommunications
+V1=40 | Code=J62_63 | Industry=Computer programming and information service activities | ISIC=62, 63 | Description=62 - Computer programming, consultancy and related activities | 63 - Information service activities
+V1=41 | Code=K | Industry=Financial and insurance activities | ISIC=64, 65, 66 | Description=64 - Financial service activities, except insurance and pension funding | 65 - Insurance, reinsurance and pension funding, except compulsory social security | 66 - Activities auxiliary to financial service and insurance activities
+V1=42 | Code=L | Industry=Real estate activities | ISIC=68 | Description=68 - Real estate activities
+V1=43 | Code=M | Industry=Professional, scientific and technical activities | ISIC=69 to 75 | Description=69 - Legal and accounting activities | 70 - Activities of head offices; management consultancy activities | 71 - Architectural and engineering activities; technical testing and analysis | 72 - Scientific research and development | 73 - Advertising and market research | 74 - Other professional, scientific and technical activities | 75 - Veterinary activities
+V1=44 | Code=N | Industry=Administrative and support service activities | ISIC=77 to 82 | Description=77 - Rental and leasing activities | 78 - Employment activities | 79 - Travel agency, tour operator, reservation service and related activities | 80 - Security and investigation activities | 81 - Services to buildings and landscape activities | 82 - Office administrative, office support and other business support activities
+V1=45 | Code=O | Industry=Public administration and defence; compulsory social security | ISIC=84 | Description=84 - Public administration and defence; compulsory social security
+V1=46 | Code=P | Industry=Education | ISIC=85 | Description=85 - Education
+V1=47 | Code=Q | Industry=Human health and social work activities | ISIC=86, 87, 88 | Description=86 - Human health activities | 87 - Residential care activities | 88 - Social work activities without accommodation
+V1=48 | Code=R | Industry=Arts, entertainment and recreation activities | ISIC=90, 91, 92, 93 | Description=90 - Creative, arts and entertainment activities | 91 - Libraries, archives, museums and other cultural activities | 92 - Gambling and betting activities | 93 - Sports activities and amusement and recreation activities
+V1=49 | Code=S | Industry=Other service activities | ISIC=94, 95, 96 | Description=94 - Activities of membership organizations | 95 - Repair of computers and personal and household goods | 96 - Other personal service activities
+V1=50 | Code=T | Industry=Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use | ISIC=97, 98 | Description=97 - Activities of households as employers of domestic personnel | 98 - Undifferentiated goods- and services-producing activities of private households for own use
+
+Article fields:
+title: {title}
+economic_subtopic: {economic_subtopic}
+type_risk: {type_risk}
+fact_eng: {fact_eng}
+opinion_eng: {opinion_eng}
+fact: {fact}
+opinion: {opinion}
+content: {content}
+
+Required JSON schema:
+{
+  "IO_V1_1": 0.0,
+  "IO_V1_2": 0.0,
+  "IO_V1_3": 0.0,
+  "IO_V1_4": 0.0,
+  "IO_V1_5": 0.0,
+  "IO_V1_6": 0.0,
+  "IO_V1_7": 0.0,
+  "IO_V1_8": 0.0,
+  "IO_V1_9": 0.0,
+  "IO_V1_10": 0.0,
+  "IO_V1_11": 0.0,
+  "IO_V1_12": 0.0,
+  "IO_V1_13": 0.0,
+  "IO_V1_14": 0.0,
+  "IO_V1_15": 0.0,
+  "IO_V1_16": 0.0,
+  "IO_V1_17": 0.0,
+  "IO_V1_18": 0.0,
+  "IO_V1_19": 0.0,
+  "IO_V1_20": 0.0,
+  "IO_V1_21": 0.0,
+  "IO_V1_22": 0.0,
+  "IO_V1_23": 0.0,
+  "IO_V1_24": 0.0,
+  "IO_V1_25": 0.0,
+  "IO_V1_26": 0.0,
+  "IO_V1_27": 0.0,
+  "IO_V1_28": 0.0,
+  "IO_V1_29": 0.0,
+  "IO_V1_30": 0.0,
+  "IO_V1_31": 0.0,
+  "IO_V1_32": 0.0,
+  "IO_V1_33": 0.0,
+  "IO_V1_34": 0.0,
+  "IO_V1_35": 0.0,
+  "IO_V1_36": 0.0,
+  "IO_V1_37": 0.0,
+  "IO_V1_38": 0.0,
+  "IO_V1_39": 0.0,
+  "IO_V1_40": 0.0,
+  "IO_V1_41": 0.0,
+  "IO_V1_42": 0.0,
+  "IO_V1_43": 0.0,
+  "IO_V1_44": 0.0,
+  "IO_V1_45": 0.0,
+  "IO_V1_46": 0.0,
+  "IO_V1_47": 0.0,
+  "IO_V1_48": 0.0,
+  "IO_V1_49": 0.0,
+  "IO_V1_50": 0.0
+}

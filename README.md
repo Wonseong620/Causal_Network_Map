@@ -24,3 +24,32 @@ https://wonseong620.github.io/Causal_Network_Map/
 `data/v3/<language>.json` — 50 ICIO V1 sector nodes and all 2,450 ordered sector pairs per language, with 7-day lagged correlations and Toda-Yamamoto test results (v3, raw volume series). An updated analysis (share-transformed series, BH-FDR edge selection) is in progress and will replace this dataset.
 
 Edge row format: `[source_v1, target_v1, ty_significant, ty_pvalue, ty_lag, r_lead1 ... r_lead7]`.
+
+## Replication package
+
+A curated replication package for the paper is in [`replication/`](replication/):
+derived daily sectoral indicators and within-day share-transformed series,
+article-level sector-probability vectors (lexical TF-IDF and zero-shot LLM
+classifiers), Toda-Yamamoto lead-lag edge tables with false-discovery-rate
+flags, the world-average input-output coefficient matrix and alignment
+statistics, the 50-sector ICIO V1 lookup, the LLM classification prompt, and all
+analysis/figure scripts. See [`replication/README.md`](replication/README.md) for
+the full manifest and a mapping to the paper.
+
+**Raw article text is not redistributed** for copyright reasons; only derived
+quantities and non-text metadata are included. The corrected series here
+(share-transformed, BH-FDR-selected) supersede the raw-volume `data/v3/` data
+used by the live viewer.
+
+## Citation
+
+If you use this software or data, please cite the accompanying article and this
+archive (see [`CITATION.cff`](CITATION.cff)). The archived release is available
+on Zenodo: **DOI: _to be added on release_**.
+
+## License
+
+- **Code** — the interactive viewer and the scripts under `replication/code/` —
+  is released under the [MIT License](LICENSE).
+- **Data** under `replication/data/` is released under
+  [CC BY 4.0](replication/data/LICENSE).

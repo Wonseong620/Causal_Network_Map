@@ -1,0 +1,31 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+The datasets in this directory — derived daily sectoral indicators and
+within-day share-transformed series, article-level sector-probability vectors
+(lexical TF-IDF and zero-shot LLM classifiers), Toda-Yamamoto lead-lag network
+edge tables with false-discovery-rate flags, the world-average input-output
+coefficient matrix, input-output alignment statistics, and the 50-sector ICIO
+V1 lookup — are licensed under the Creative Commons Attribution 4.0
+International License.
+
+You are free to share (copy and redistribute) and adapt (remix, transform,
+build upon) the material for any purpose, including commercially, provided you
+give appropriate credit, provide a link to the license, and indicate if
+changes were made.
+
+Full legal text: https://creativecommons.org/licenses/by/4.0/legalcode
+Human-readable summary: https://creativecommons.org/licenses/by/4.0/
+
+Attribution:
+  Kim, W. & Erokhin, D. (2026). Replication data for "Qualitative Shock Mapping
+  for Quantitative Production Network Models: Evidence from Iran-Related
+  Hostilities." International Institute for Applied Systems Analysis (IIASA).
+
+NOTE ON RAW TEXT: Raw article text (titles, article bodies, factual summaries,
+opinion/interpretation fields, and economic-subtopic labels) is NOT included in
+these files, for copyright and licensing reasons. Only derived quantities and
+non-text metadata (publication date, source channel, outlet, publisher
+location, URL, war-related indicator, risk type, negativity score, risk order,
+classifier confidence, and the 50 sector-probability columns) are provided. The
+pipeline can be re-run on independently collected text using the code in
+`../code/`.

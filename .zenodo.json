@@ -1,0 +1,19 @@
+{
+  "title": "Causal Network Map: interactive viewer and replication package for \"Qualitative Shock Mapping for Quantitative Production Network Models: Evidence from Iran-Related Hostilities\"",
+  "upload_type": "software",
+  "description": "<p>Interactive lead-lag network viewer and a curated replication package for a news-based sectoral shock-mapping framework applied to Iran-related hostilities (Kim &amp; Erokhin, IIASA).</p><p><strong>Contents.</strong> Derived daily sectoral indicators and within-day share-transformed series by language; article-level sector-probability vectors from a lexical (TF-IDF) and a zero-shot large-language-model classifier; full pairwise Toda-Yamamoto lead-lag edge tables with false-discovery-rate flags; the world-average input-output coefficient matrix and input-output alignment statistics; the 50-sector ICIO V1 lookup; the LLM classification prompt; and all analysis and figure-generation scripts.</p><p><strong>Raw article text is not redistributed</strong> for copyright reasons; only derived quantities and non-text metadata are included, so the pipeline can be audited and re-run on independently collected text.</p><p><strong>Licensing.</strong> Code (the viewer and the Python scripts under <code>replication/code/</code>) is released under the MIT License. Datasets under <code>replication/data/</code> are released under the Creative Commons Attribution 4.0 International License (CC BY 4.0).</p>",
+  "creators": [
+    {"name": "Kim, Wonseong", "affiliation": "International Institute for Applied Systems Analysis (IIASA)"},
+    {"name": "Erokhin, Dmitry", "affiliation": "International Institute for Applied Systems Analysis (IIASA)"}
+  ],
+  "keywords": [
+    "qualitative data",
+    "input-output analysis",
+    "geopolitical risk",
+    "production networks",
+    "text as data",
+    "shock indicators"
+  ],
+  "license": "MIT",
+  "access_right": "open"
+}
