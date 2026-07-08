@@ -1,5 +1,7 @@
 # Qualitative Shock Mapping for Quantitative Production Network Models: Evidence from Iran-Related Hostilities
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21257558.svg)](https://doi.org/10.5281/zenodo.21257558)
+
 https://github.com/Wonseong620/Causal_Network_Map
 
 The research question would be: "How can qualitative news about regional hostilities be converted into structured sectoral shock indicators, and how can these indicators supplement quantitative models of production network spillovers?"
@@ -44,8 +46,10 @@ used by the live viewer.
 ## Citation
 
 If you use this software or data, please cite the accompanying article and this
-archive (see [`CITATION.cff`](CITATION.cff)). The archived release is available
-on Zenodo: **DOI: _to be added on release_**.
+archive (see [`CITATION.cff`](CITATION.cff)). The archived releases are on
+Zenodo — concept DOI (all versions):
+[10.5281/zenodo.21257558](https://doi.org/10.5281/zenodo.21257558); this release
+(v1.0.0): [10.5281/zenodo.21257559](https://doi.org/10.5281/zenodo.21257559).
 
 ## License
 
