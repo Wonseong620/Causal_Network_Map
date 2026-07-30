@@ -13,13 +13,19 @@ body {
   color: var(--ink);
   background: #fff;
 }
-.app { min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+.app {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 560px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
 header {
-  padding: 18px 26px 14px;
+  padding: 10px 26px 10px;
   border-bottom: 1px solid var(--line);
   background: white;
 }
-h1 { margin: 0 0 12px; font-size: 28px; line-height: 1.15; font-weight: 800; }
+h1 { margin: 0 0 8px; font-size: 22px; line-height: 1.15; font-weight: 800; }
 .controls {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -48,9 +54,9 @@ button {
 }
 button:hover { filter: brightness(.95); }
 .value { color: var(--blue); font-weight: 800; font-variant-numeric: tabular-nums; }
-main { display: grid; grid-template-columns: minmax(0, 1fr) 330px; min-height: 0; }
-.canvas-wrap { position: relative; min-height: 720px; overflow: hidden; }
-svg { width: 100%; height: 100%; min-height: 720px; display: block; background: white; }
+main { display: grid; grid-template-columns: minmax(0, 1fr) 330px; min-height: 0; overflow: hidden; }
+.canvas-wrap { position: relative; min-height: 0; overflow: hidden; }
+svg { width: 100%; height: 100%; display: block; background: white; }
 aside { border-left: 1px solid var(--line); background: var(--panel); padding: 18px; overflow: auto; }
 .stat {
   display: grid;
@@ -153,7 +159,8 @@ aside { border-left: 1px solid var(--line); background: var(--panel); padding: 1
 .loading.on { display: flex; }
 
 @media (max-width: 980px) {
-  main { grid-template-columns: 1fr; }
+  .app { height: auto; min-height: 100vh; }
+  main { grid-template-columns: 1fr; overflow: visible; }
   aside { border-left: 0; border-top: 1px solid var(--line); }
   .canvas-wrap, svg { min-height: 92vw; }
 }
