@@ -107,7 +107,8 @@ nav.filters section { display: grid; gap: 10px; }
 .topic.active { background: var(--blue); color: white; border-color: #8aa9c6; }
 .topic.tbd { color: var(--muted); cursor: not-allowed; background: var(--panel); }
 .topic.tbd:hover { filter: none; }
-.topic span { font-size: 10px; font-weight: 800; letter-spacing: .04em; padding: 1px 5px; border: 1px solid var(--line); border-radius: 3px; color: var(--muted); background: white; }
+.topic { white-space: nowrap; overflow: hidden; gap: 6px; }
+.topic span { flex: none; font-size: 10px; font-weight: 800; letter-spacing: .04em; padding: 1px 5px; border: 1px solid var(--line); border-radius: 3px; color: var(--muted); background: white; }
 nav.filters h2 {
   margin: 0 0 2px;
   font-size: 11px;
