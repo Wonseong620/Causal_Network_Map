@@ -13,13 +13,13 @@ const SVG_NS = "http://www.w3.org/2000/svg";
  * (figures_code/qq_style.py) and were validated for colour-vision
  * deficiency on adjacent arcs. */
 const GROUPS = [
-  { key: "primary",   label: "Agriculture & mining",                    first: 1,  last: 8,  color: "#5E9422" },
-  { key: "light_mfg", label: "Light & process manufacturing",           first: 9,  last: 19, color: "#7E2F8E" },
-  { key: "machinery", label: "Machinery & transport equipment",         first: 20, last: 27, color: "#D95319" },
-  { key: "utilities", label: "Utilities & construction",                first: 28, last: 30, color: "#0072BD" },
-  { key: "trade",     label: "Trade, transport & logistics",            first: 31, last: 37, color: "#A2142F" },
-  { key: "info_fin",  label: "Information, finance & business services", first: 38, last: 44, color: "#C9960C" },
-  { key: "public",    label: "Public & social services",                first: 45, last: 50, color: "#2E9FD8" },
+  { key: "primary",   label: "Agriculture & mining",                    first: 1,  last: 8,  color: "#3F9B4E" },
+  { key: "light_mfg", label: "Light & process manufacturing",           first: 9,  last: 19, color: "#7B4FBF" },
+  { key: "machinery", label: "Machinery & transport equipment",         first: 20, last: 27, color: "#E8702A" },
+  { key: "utilities", label: "Utilities & construction",                first: 28, last: 30, color: "#3A5FD9" },
+  { key: "trade",     label: "Trade, transport & logistics",            first: 31, last: 37, color: "#C8325A" },
+  { key: "info_fin",  label: "Information, finance & business services", first: 38, last: 44, color: "#D9A21B" },
+  { key: "public",    label: "Public & social services",                first: 45, last: 50, color: "#1FA8C9" },
 ];
 const groupOf = v1 => GROUPS.find(g => v1 >= g.first && v1 <= g.last);
 const sectorColor = v1 => groupOf(v1).color;
@@ -516,6 +516,7 @@ async function buildCompare() {
 // ---------- render orchestration ----------
 function syncDatasetUi() {
   const ds = controls.dataset.value;
+  document.getElementById("version").textContent = `v1.1.0 \u00b7 data ${ds}`;
   controls.ty.querySelector('option[value="sig"]').textContent = DATASETS[ds].sigLabel;
   document.getElementById("dataNote").textContent = ds === "v5"
     ? "Data: v5 - within-day share-transformed series; edges selected by Benjamini-Hochberg FDR (5%) over all 2,450 ordered sector pairs. Specification of record for the manuscript."
@@ -534,6 +535,7 @@ async function render({ rebuild = true } = {}) {
   document.getElementById("leadValue").textContent = controls.lead.value;
   if (rebuild || !scene || scene.language !== language) {
     const payload = await loadLanguage(language);
+    fillSectorList(payload.nodes);
     buildScene(payload, language);
   } else {
     updateInteraction();
@@ -574,6 +576,7 @@ svg.addEventListener("click", evt => {
   if (!nodeG) return;
   const v1 = Number(nodeG.dataset.v1);
   selectedNode = selectedNode === v1 ? null : v1;
+  syncSectorBox();
   updateInteraction();
 });
 svg.addEventListener("keydown", evt => {
@@ -584,6 +587,13 @@ svg.addEventListener("keydown", evt => {
   selectedNode = selectedNode === v1 ? null : v1;
   updateInteraction();
 });
+
+function syncSectorBox() {
+  const box = document.getElementById("sectorFind");
+  if (!box || !scene) return;
+  const n = selectedNode ? scene.payload.nodes.find(d => d.v1 === selectedNode) : null;
+  box.value = n ? `${n.v1} \u2014 ${n.industry.split(";")[0]}` : "";
+}
 
 function showTip(evt, html) {
   tooltip.innerHTML = html;
@@ -682,6 +692,50 @@ document.getElementById("download").addEventListener("click", () => {
     download(canvas.toDataURL("image/png"), exportName("png"));
   };
   img.src = url;
+});
+
+// ---------- sector search ----------
+const sectorFind = document.getElementById("sectorFind");
+let sectorListFilled = false;
+function fillSectorList(nodes) {
+  if (sectorListFilled) return;
+  const dl = document.getElementById("sectorList");
+  for (const n of nodes) {
+    const o = document.createElement("option");
+    o.value = `${n.v1} \u2014 ${n.industry.split(";")[0]}`;
+    dl.appendChild(o);
+  }
+  sectorListFilled = true;
+}
+function findSector(text) {
+  if (!scene) return null;
+  const t = text.trim().toLowerCase();
+  if (!t) return null;
+  const m = t.match(/^(\d{1,2})\b/);
+  if (m) { const v = Number(m[1]); if (v >= 1 && v <= 50) return v; }
+  const hit = scene.payload.nodes.find(n => n.industry.toLowerCase().includes(t) || n.code.toLowerCase() === t);
+  return hit ? hit.v1 : null;
+}
+async function selectSector(v1) {
+  if (controls.view.value === "compare") {
+    controls.view.value = "single";
+    await render({ rebuild: true });
+  }
+  selectedNode = v1;
+  syncSectorBox();
+  updateInteraction();
+  scene?.nodeEls.get(v1)?.focus({ preventScroll: true });
+}
+sectorFind.addEventListener("change", () => {
+  const v1 = findSector(sectorFind.value);
+  if (v1) selectSector(v1);
+  else if (sectorFind.value.trim()) showToast("No sector matches");
+});
+sectorFind.addEventListener("keydown", evt => {
+  if (evt.key === "Escape") { sectorFind.value = ""; selectedNode = null; updateInteraction(); }
+});
+document.getElementById("sectorClear").addEventListener("click", () => {
+  sectorFind.value = ""; selectedNode = null; updateInteraction();
 });
 
 // ---------- share link / small screens ----------

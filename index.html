@@ -4,13 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Interactive Causal Network Map</title>
-  <link rel="stylesheet" href="assets/style.css?v=20260925c" />
+  <link rel="stylesheet" href="assets/style.css?v=20260925d" />
 </head>
 <body>
 <div class="app">
   <header>
     <h1 id="pageTitle">Interactive Causal Network Map</h1>
-    <p class="tagline">Toda&ndash;Yamamoto lead&ndash;lag networks of news-based sectoral shock indicators, 50 ICIO V1 sectors, four language corpora</p>
+    <span class="version" id="version">v1.1.0 &middot; data v5</span>
     <nav class="links">
       <a href="https://github.com/Wonseong620/Causal_Network_Map">GitHub</a>
       <a href="https://doi.org/10.5281/zenodo.21257558">Zenodo</a>
@@ -59,6 +59,17 @@
           <option value="all">All correlations</option>
         </select>
       </label>
+    </section>
+
+    <section>
+      <h2>Sector</h2>
+      <label>Find and lock a sector
+        <span class="find-row">
+          <input id="sectorFind" list="sectorList" type="search" placeholder="V1 number or name" autocomplete="off" />
+          <button id="sectorClear" type="button" class="ghost" title="Clear selection">&times;</button>
+        </span>
+      </label>
+      <datalist id="sectorList"></datalist>
     </section>
 
     <section>
@@ -121,13 +132,13 @@
 
     <div class="legend" id="groupLegend">
       <div class="legend-title">Sector groups (ICIO V1)</div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#5E9422"></span><span>Agriculture &amp; mining (1&ndash;8)</span></div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#7E2F8E"></span><span>Light &amp; process manufacturing (9&ndash;19)</span></div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#D95319"></span><span>Machinery &amp; transport equipment (20&ndash;27)</span></div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#0072BD"></span><span>Utilities &amp; construction (28&ndash;30)</span></div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#A2142F"></span><span>Trade, transport &amp; logistics (31&ndash;37)</span></div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#C9960C"></span><span>Information, finance &amp; business services (38&ndash;44)</span></div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#2E9FD8"></span><span>Public &amp; social services (45&ndash;50)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#3F9B4E"></span><span>Agriculture &amp; mining (1&ndash;8)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#7B4FBF"></span><span>Light &amp; process manufacturing (9&ndash;19)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#E8702A"></span><span>Machinery &amp; transport equipment (20&ndash;27)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#3A5FD9"></span><span>Utilities &amp; construction (28&ndash;30)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#C8325A"></span><span>Trade, transport &amp; logistics (31&ndash;37)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#D9A21B"></span><span>Information, finance &amp; business services (38&ndash;44)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#1FA8C9"></span><span>Public &amp; social services (45&ndash;50)</span></div>
     </div>
 
     <div class="legend">
@@ -152,6 +163,6 @@
 </div>
 <div class="tooltip" id="tooltip"></div>
 <div class="toast" id="toast"></div>
-<script type="module" src="assets/app.js?v=20260925c"></script>
+<script type="module" src="assets/app.js?v=20260925d"></script>
 </body>
 </html>
