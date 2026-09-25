@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" />
-  <link rel="stylesheet" href="assets/style.css?v=20260925l" />
+  <link rel="stylesheet" href="assets/style.css?v=20260925m" />
 </head>
 <body>
 <div class="app">
@@ -15,7 +15,7 @@
     <h1 id="pageTitle">Interactive Causal Network Map</h1>
     <span class="version" id="version">v2.1.3 &middot; data v5</span>
     <nav class="links">
-      <button id="aboutOpen" type="button" class="linkish">About / Method</button>
+      <button id="aboutOpen" type="button" class="linkish">About<span class="long"> / Method</span></button>
       <a href="https://github.com/Wonseong620/Causal_Network_Map">GitHub</a>
       <a href="https://doi.org/10.5281/zenodo.21257558">Zenodo</a>
       <a href="https://github.com/Wonseong620/Causal_Network_Map/tree/main/replication">Replication</a>
@@ -107,6 +107,7 @@
       <div class="btn-row">
         <button id="download" type="button">PNG</button>
         <button id="downloadSvg" type="button">SVG</button>
+        <button id="copyLinkMobile" type="button" class="ghost mobile-only">Copy link</button>
       </div>
       <button id="copyLink" type="button" class="ghost">Copy link to this view</button>
     </section>
@@ -206,6 +207,6 @@
 </dialog>
 <div class="tooltip" id="tooltip"></div>
 <div class="toast" id="toast"></div>
-<script type="module" src="assets/app.js?v=20260925l"></script>
+<script type="module" src="assets/app.js?v=20260925m"></script>
 </body>
 </html>

@@ -870,14 +870,27 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add("on");
   setTimeout(() => t.classList.remove("on"), 1800);
 }
-document.getElementById("copyLink").addEventListener("click", async () => {
+async function copyLink() {
   const q = new URLSearchParams();
   for (const [id, c] of Object.entries(controls)) q.set(id, c.value);
   if (selectedNode) q.set("node", String(selectedNode));
   const url = `${location.origin}${location.pathname}?${q}`;
   try { await navigator.clipboard.writeText(url); showToast("Link copied"); }
   catch { prompt("Copy this link:", url); }
-});
+}
+document.getElementById("copyLink").addEventListener("click", copyLink);
+document.getElementById("copyLinkMobile").addEventListener("click", copyLink);
+// On phones, applying a filter closes the panel so the ring is visible.
+const mobileQuery = window.matchMedia("(max-width: 820px)");
+function closeFiltersOnMobile() {
+  if (!mobileQuery.matches) return;
+  document.getElementById("filters").classList.add("collapsed");
+  document.getElementById("menuToggle").setAttribute("aria-expanded", "false");
+}
+for (const id of ["dataset", "language", "view", "ty", "edgeMode", "nodeRole"]) {
+  controls[id].addEventListener("change", closeFiltersOnMobile);
+}
+sectorFind.addEventListener("change", () => setTimeout(closeFiltersOnMobile, 50));
 if (window.matchMedia("(max-width: 820px)").matches && !PAPER) {
   document.getElementById("filters").classList.add("collapsed");
   document.getElementById("menuToggle").setAttribute("aria-expanded", "false");
