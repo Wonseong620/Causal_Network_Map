@@ -419,7 +419,7 @@ svg.paper .focal-label { font-size: 17px; }
   h1 { grid-area: title; font-size: 16px; white-space: normal; }
   .version { grid-area: version; justify-self: start; font-size: 11px; flex: none; white-space: nowrap; }
   .links { grid-area: links; justify-self: end; gap: 12px; font-size: 11px; white-space: nowrap; }
-  .links .long { display: none; }
+  .links .long, .version .long { display: none; }
   #menuToggle {
     grid-area: toggle;
     display: inline-flex;

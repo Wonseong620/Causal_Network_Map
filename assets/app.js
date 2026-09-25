@@ -629,7 +629,7 @@ function renderCompareCard(active, counts) {
 // ---------- render orchestration ----------
 function syncDatasetUi() {
   const ds = controls.dataset.value;
-  document.getElementById("version").textContent = `v2.1.3 \u00b7 data ${ds}`;
+  document.getElementById("version").innerHTML = `v2.1.3<span class="long"> \u00b7 data ${ds}</span>`;
   controls.ty.querySelector('option[value="sig"]').textContent = DATASETS[ds].sigLabel;
 }
 
