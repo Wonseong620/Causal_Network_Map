@@ -19,6 +19,7 @@ https://wonseong620.github.io/Causal_Network_Map/
 - **Correlation threshold (|r|)** and **Max lead day** filter edges by the lagged Pearson correlation at the selected lead. Dashed orange edges indicate negative correlations.
 - **Edge significance** restricts edges to BH-FDR-significant pairs (v5) or TY-significant pairs (v3), raw p < 0.05, or shows all correlations.
 - **Edge display: Hover / selected node** shows only edges incident to the hovered or clicked (locked) sector; the **role** filter isolates edges the sector leads or lags. Nodes are keyboard-accessible (Tab + Enter). Edge labels (`+d`, source lead days) appear when at most 60 edges are visible and always for a focused node.
+- The side panel shows a 7 x 7 matrix of visible edges by sector group (row leads column), and a focused node is named beside the ring.
 - **Compare all (2 x 2)** renders all four language networks under matched filters — the layout used for the four-language comparison figure in the manuscript.
 - **Export** downloads the current view as PNG (2200 px wide) or SVG.
 

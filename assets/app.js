@@ -292,9 +292,11 @@ function buildScene(payload, language) {
     nodeEls.set(node.v1, g);
   }
   svg.appendChild(nodeLayer);
+  const focalLabel = el("text", { class: "focal-label hidden" });
+  svg.appendChild(focalLabel);
   if (PAPER) svg.appendChild(svgLegend(975));
 
-  scene = { payload, language, edges, edgeEls, nodeEls, sub, emptyMsg, filters: f, showLabels };
+  scene = { payload, language, edges, edgeEls, nodeEls, sub, emptyMsg, focalLabel, filters: f, showLabels };
   updateInteraction();
 }
 
@@ -357,6 +359,51 @@ function updateInteraction() {
   stats.nodeCount.textContent = String(linked.size);
   stats.meanR.textContent = rendered ? (sumR / rendered).toFixed(2) : "0.00";
   stats.meanLead.textContent = rendered ? (sumLead / rendered).toFixed(1) : "0.0";
+
+  placeFocalLabel(active);
+  renderGroupMatrix(scene.edgeEls.filter(({ path }) => !path.classList.contains("hidden")).map(x => x.e));
+}
+
+/* Short sector name beside the focused node, placed outside the ring so
+ * it never covers edges. */
+function placeFocalLabel(active) {
+  const lbl = scene.focalLabel;
+  if (!lbl) return;
+  const n = active ? scene.payload.nodes.find(d => d.v1 === active) : null;
+  lbl.classList.toggle("hidden", !n);
+  if (!n) return;
+  const p = polarPosition(n.v1, 500, CY, 1.16);
+  const right = p.x >= 500;
+  lbl.setAttribute("x", p.x); lbl.setAttribute("y", p.y + 4);
+  lbl.setAttribute("text-anchor", right ? "start" : "end");
+  lbl.textContent = `${n.v1} ${shortName(n.industry)}`;
+}
+
+function shortName(industry, max = 28) {
+  const t = industry.split(";")[0].replace(/^Manufacture of /, "").replace(/^Activities of /, "");
+  return t.length <= max ? t : t.slice(0, max).replace(/\s+\S*$/, "") + "\u2026";
+}
+
+/* 7x7 group-to-group edge counts for the currently visible edges. */
+function renderGroupMatrix(edges) {
+  const box = document.getElementById("groupMatrix");
+  if (!box) return;
+  const idx = new Map(GROUPS.map((g, i) => [g.key, i]));
+  const m = GROUPS.map(() => GROUPS.map(() => 0));
+  for (const e of edges) m[idx.get(groupOf(e.s).key)][idx.get(groupOf(e.t).key)]++;
+  const max = Math.max(1, ...m.flat());
+  const abbr = ["Agr", "LtM", "Mch", "Utl", "Trd", "Inf", "Pub"];
+  let html = "<table class=\"gm\"><thead><tr><th></th>" +
+    GROUPS.map((g, j) => `<th style="color:${g.color}" title="${g.label}">${abbr[j]}</th>`).join("") +
+    "</tr></thead><tbody>";
+  GROUPS.forEach((g, i) => {
+    html += `<tr><th style="color:${g.color}" title="${g.label}">${abbr[i]}</th>` +
+      m[i].map(v => {
+        const a = v ? (0.12 + 0.78 * v / max).toFixed(2) : 0;
+        return `<td style="background:rgba(0,114,189,${a})${v / max > 0.55 ? ";color:#fff" : ""}">${v || ""}</td>`;
+      }).join("") + "</tr>";
+  });
+  box.innerHTML = html + "</tbody></table>";
 }
 
 // ---------- compare (2x2 small multiples) ----------
@@ -423,6 +470,8 @@ async function buildCompare() {
   });
   if (PAPER) svg.appendChild(svgLegend(985));
   scene = null;
+  const box = document.getElementById("groupMatrix");
+  if (box) box.innerHTML = "";
   stats.edgeCount.textContent = "-";
   stats.nodeCount.textContent = "-";
   stats.meanR.textContent = "-";
@@ -542,6 +591,9 @@ const EXPORT_CSS = `
     .empty-msg { fill: #5d6670; font-size: 15px; font-weight: 700; text-anchor: middle; }
     .panel-title { font-size: 14px; font-weight: 800; text-anchor: middle; }
     .legend-text { fill: #111; font-size: 12px; }
+    .focal-label { fill: #111; font-size: 13px; font-weight: 800; paint-order: stroke; stroke: white; stroke-width: 4px; stroke-linejoin: round; }
+    .focal-label.hidden { display: none; }
+    svg.paper .focal-label { font-size: 17px; }
     svg.paper .node text { font-size: 15px; }
     svg.paper .node.small text { font-size: 9px; }
     svg.paper .edge-label { font-size: 11px; }

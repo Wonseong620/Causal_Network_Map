@@ -22,7 +22,7 @@ const FIGURES = [
   { name: "fig4_network_english", query: `${COMMON}&language=English&edgeMode=all` },
   { name: "fig5_network_4lang",   query: `${COMMON}&view=compare` },
   // Fig 7 panels: same focal sector, three lead-lag modes. Chinese V1 16
-  // (fabricated metal products) has the largest balanced degree in the FDR
+  // (rubber and plastic products) has the largest balanced degree in the FDR
   // network (11 lead / 9 lag edges), so all three modes are populated.
   { name: "fig7a_focus16_both",   query: `${COMMON}&language=Chinese&edgeMode=hover&node=16&nodeRole=both` },
   { name: "fig7b_focus16_lead",   query: `${COMMON}&language=Chinese&edgeMode=hover&node=16&nodeRole=lead` },
