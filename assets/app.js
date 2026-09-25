@@ -744,7 +744,7 @@ for (const id of ["edgeMode", "nodeRole"]) {
 
 // ---------- export ----------
 const EXPORT_CSS = `
-    text { font-family: Arial, Helvetica, sans-serif; }
+    text { font-family: Inter, Arial, Helvetica, sans-serif; }
     .node circle { stroke: white; stroke-width: 1.7; }
     .node text { fill: white; font-size: 12px; font-weight: 800; text-anchor: middle; dominant-baseline: central; paint-order: stroke; stroke: rgba(0,0,0,.35); stroke-width: 1.6px; stroke-linejoin: round; }
     .node.small text { font-size: 7px; }

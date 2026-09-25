@@ -8,15 +8,19 @@
   --nav-w: 250px;
   --aside-w: 310px;
   --header-h: 58px;
+  --font: "Inter", Arial, Helvetica, sans-serif;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font);
   color: var(--ink);
   background: #fff;
+  font-feature-settings: "tnum" 1, "cv11" 1;
 }
+select, button, input, textarea { font-family: inherit; }
+svg#network text { font-family: var(--font); }
 
 /* ---------- layout: header / nav | main | aside ---------- */
 .app {
@@ -151,7 +155,6 @@ input[type="search"] {
   font-size: 13px;
   padding: 0 8px;
   width: 100%;
-  font-family: inherit;
 }
 #sectorClear { padding: 0; font-size: 16px; }
 .value { color: var(--blue); font-weight: 800; font-variant-numeric: tabular-nums; }
