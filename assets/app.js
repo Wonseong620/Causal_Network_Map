@@ -33,7 +33,7 @@ const DATASETS = {
 const params = new URLSearchParams(location.search);
 const PAPER = params.get("export") === "paper";
 if (PAPER) document.body.classList.add("paper");
-const CY = PAPER ? 505 : 545;          // ring centre; leaves room for the title when not in paper mode
+const CY = 505;                        // ring centre (titles live in the page header, not the SVG)
 
 const svg = document.getElementById("network");
 const tooltip = document.getElementById("tooltip");
@@ -252,15 +252,7 @@ function buildScene(payload, language) {
   svg.setAttribute("viewBox", PAPER ? "0 0 1000 1100" : "0 0 1000 1000");
   svg.classList.toggle("paper", PAPER);
 
-  let sub = null;
-  if (!PAPER) {
-    svg.appendChild(el("text", { x: 500, y: 42, class: "title" },
-      `${language} Media Lead-Lag by Sectors`));
-    sub = el("text", { x: 500, y: 70, class: "subtitle" });
-    svg.appendChild(sub);
-    svg.appendChild(el("text", { x: 500, y: 88, class: "datastamp" },
-      `Data: ${payload.meta.dataset}`));
-  }
+  setViewHead(`${language} media lead\u2013lag network by sector`, "");
 
   const emptyMsg = el("text", { x: 500, y: CY, class: "empty-msg" });
   svg.appendChild(emptyMsg);
@@ -312,7 +304,7 @@ function buildScene(payload, language) {
   svg.appendChild(focalLabel);
   if (PAPER) svg.appendChild(svgLegend(975));
 
-  scene = { payload, language, edges, edgeEls, nodeEls, sub, emptyMsg, focalLabel, filters: f, showLabels };
+  scene = { payload, language, edges, edgeEls, nodeEls, emptyMsg, focalLabel, filters: f, showLabels };
   updateInteraction();
 }
 
@@ -357,11 +349,9 @@ function updateInteraction() {
   }
 
   const f = scene.filters;
-  if (scene.sub) {
-    scene.sub.textContent =
-      `50 V1 sectors | ${rendered} rendered / ${scene.edges.length} matched edges | ` +
-      `|r| >= ${f.corrMin.toFixed(2)} | max lead <= ${f.maxLead}d | ${sigLabel(f)}`;
-  }
+  setViewHead(null,
+    `${rendered} of ${scene.edges.length} matched edges shown \u00b7 |r| \u2265 ${f.corrMin.toFixed(2)} \u00b7 ` +
+    `lead \u2264 ${f.maxLead} d \u00b7 ${sigLabel(f)} \u00b7 ${scene.payload.meta.dataset}`);
 
   if (scene.edges.length === 0) {
     scene.emptyMsg.textContent = "No edges match the current filters - lower the |r| threshold or relax the significance filter.";
@@ -377,6 +367,7 @@ function updateInteraction() {
   stats.meanLead.textContent = rendered ? (sumLead / rendered).toFixed(1) : "0.0";
 
   placeFocalLabel(active);
+  renderNodeCard(active, rendered);
   renderGroupMatrix(scene.edgeEls.filter(({ path }) => !path.classList.contains("hidden")).map(x => x.e));
 }
 
@@ -388,16 +379,49 @@ function placeFocalLabel(active) {
   const n = active ? scene.payload.nodes.find(d => d.v1 === active) : null;
   lbl.classList.toggle("hidden", !n);
   if (!n) return;
+  // Outside the ring; near the left/right extremes the label would leave the
+  // viewBox, so it sits above or below the node instead.
   const p = polarPosition(n.v1, 500, CY, 1.16);
-  const right = p.x >= 500;
-  lbl.setAttribute("x", p.x); lbl.setAttribute("y", p.y + 4);
-  lbl.setAttribute("text-anchor", right ? "start" : "end");
-  lbl.textContent = `${n.v1} ${shortName(n.industry)}`;
+  const dx = p.x - 500, dy = p.y - CY;
+  const side = Math.abs(dx) > 340;
+  lbl.setAttribute("x", side ? polarPosition(n.v1, 500, CY, 1).x : p.x);
+  lbl.setAttribute("y", side ? polarPosition(n.v1, 500, CY, 1).y + (dy >= 0 ? 52 : -44) : p.y + 4);
+  lbl.setAttribute("text-anchor", side ? "middle" : (dx >= 0 ? "start" : "end"));
+  lbl.textContent = `${n.v1} ${shortName(n.industry, 24)}`;
 }
 
 function shortName(industry, max = 28) {
   const t = industry.split(";")[0].replace(/^Manufacture of /, "").replace(/^Activities of /, "");
   return t.length <= max ? t : t.slice(0, max).replace(/\s+\S*$/, "") + "\u2026";
+}
+
+function setViewHead(title, sub) {
+  if (title !== null) document.getElementById("viewTitle").textContent = title;
+  if (sub !== null) document.getElementById("viewSub").textContent = sub;
+}
+
+function renderNodeCard(active, rendered) {
+  const body = document.getElementById("nodeCardBody");
+  if (!body) return;
+  const n = active && scene ? scene.payload.nodes.find(d => d.v1 === active) : null;
+  if (!n) {
+    body.innerHTML = controls.view.value === "compare"
+      ? "Switch to a single language to inspect a sector."
+      : "Hover or click a node on the ring. Click again to unlock.";
+    return;
+  }
+  const g = groupOf(n.v1);
+  let out = 0, inn = 0;
+  for (const e of scene.edges) { if (e.s === n.v1) out++; if (e.t === n.v1) inn++; }
+  body.innerHTML =
+    `<div class="name">V1 ${n.v1} \u00b7 ${n.code}</div>` +
+    `<div>${n.industry}</div>` +
+    `<div class="grp"><i style="background:${g.color}"></i>${g.label}</div>` +
+    `<dl><dt>Total exposure</dt><dd>${n.total.toFixed(1)}</dd>` +
+    `<dt>Active days</dt><dd>${n.active}</dd>` +
+    `<dt>Leads</dt><dd>${out} sector${out === 1 ? "" : "s"}</dd>` +
+    `<dt>Lags</dt><dd>${inn} sector${inn === 1 ? "" : "s"}</dd>` +
+    `<dt>Locked</dt><dd>${selectedNode === n.v1 ? "yes" : "no"}</dd></dl>`;
 }
 
 /* 7x7 group-to-group edge counts for the currently visible edges. */
@@ -434,16 +458,10 @@ async function buildCompare() {
   svg.appendChild(defs);
   svg.setAttribute("viewBox", PAPER ? "0 0 1000 1100" : "0 0 1000 1000");
   svg.classList.toggle("paper", PAPER);
-  if (!PAPER) {
-    svg.appendChild(el("text", { x: 500, y: 30, class: "title" },
-      "Four-Language Lead-Lag Comparison"));
-    svg.appendChild(el("text", { x: 500, y: 50, class: "subtitle" },
-      `|r| >= ${f.corrMin.toFixed(2)} | max lead <= ${f.maxLead}d | ${sigLabel(f)}`));
-    svg.appendChild(el("text", { x: 500, y: 66, class: "datastamp" },
-      `Data: ${payloads[0].meta.dataset}`));
-  }
+  setViewHead("Four-language lead\u2013lag comparison",
+    `|r| \u2265 ${f.corrMin.toFixed(2)} \u00b7 lead \u2264 ${f.maxLead} d \u00b7 ${sigLabel(f)} \u00b7 ${payloads[0].meta.dataset}`);
 
-  const top = PAPER ? 70 : 95;
+  const top = 70;
   const centers = [[260, top + 215], [740, top + 215], [260, top + 690], [740, top + 690]];
   const scale = 0.46;
   const panelLabels = ["(a)", "(b)", "(c)", "(d)"];
@@ -488,6 +506,7 @@ async function buildCompare() {
   scene = null;
   const box = document.getElementById("groupMatrix");
   if (box) box.innerHTML = "";
+  renderNodeCard(null, 0);
   stats.edgeCount.textContent = "-";
   stats.nodeCount.textContent = "-";
   stats.meanR.textContent = "-";
@@ -663,6 +682,30 @@ document.getElementById("download").addEventListener("click", () => {
     download(canvas.toDataURL("image/png"), exportName("png"));
   };
   img.src = url;
+});
+
+// ---------- share link / small screens ----------
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("on");
+  setTimeout(() => t.classList.remove("on"), 1800);
+}
+document.getElementById("copyLink").addEventListener("click", async () => {
+  const q = new URLSearchParams();
+  for (const [id, c] of Object.entries(controls)) q.set(id, c.value);
+  if (selectedNode) q.set("node", String(selectedNode));
+  const url = `${location.origin}${location.pathname}?${q}`;
+  try { await navigator.clipboard.writeText(url); showToast("Link copied"); }
+  catch { prompt("Copy this link:", url); }
+});
+if (window.matchMedia("(max-width: 820px)").matches && !PAPER) {
+  document.getElementById("filters").classList.add("collapsed");
+  document.getElementById("menuToggle").setAttribute("aria-expanded", "false");
+}
+document.getElementById("menuToggle").addEventListener("click", evt => {
+  const nav = document.getElementById("filters");
+  const open = nav.classList.toggle("collapsed") === false;
+  evt.currentTarget.setAttribute("aria-expanded", String(open));
 });
 
 // URL presets, e.g. ?dataset=v5&language=English&corr=0&lead=7&ty=sig&edgeMode=all&view=single

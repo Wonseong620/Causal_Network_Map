@@ -4,14 +4,25 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Interactive Causal Network Map</title>
-  <link rel="stylesheet" href="assets/style.css?v=20260925b" />
+  <link rel="stylesheet" href="assets/style.css?v=20260925c" />
 </head>
 <body>
 <div class="app">
   <header>
     <h1 id="pageTitle">Interactive Causal Network Map</h1>
-    <div class="controls">
-      <label>Data
+    <p class="tagline">Toda&ndash;Yamamoto lead&ndash;lag networks of news-based sectoral shock indicators, 50 ICIO V1 sectors, four language corpora</p>
+    <nav class="links">
+      <a href="https://github.com/Wonseong620/Causal_Network_Map">GitHub</a>
+      <a href="https://doi.org/10.5281/zenodo.21257558">Zenodo</a>
+      <a href="replication/README.md">Replication</a>
+      <button id="menuToggle" type="button" class="ghost" aria-expanded="true" aria-controls="filters">Filters</button>
+    </nav>
+  </header>
+
+  <nav class="filters" id="filters">
+    <section>
+      <h2>Data</h2>
+      <label>Dataset
         <select id="dataset">
           <option value="v5">v5 (share + BH-FDR)</option>
           <option value="v3">v3 (raw volume, legacy)</option>
@@ -25,23 +36,37 @@
           <option>Persian</option>
         </select>
       </label>
-      <label>Correlation threshold (|r|): <span class="value" id="corrValue">0.00</span>
+      <label>View
+        <select id="view">
+          <option value="single">Single language</option>
+          <option value="compare">Compare all (2 x 2)</option>
+        </select>
+      </label>
+    </section>
+
+    <section>
+      <h2>Edges</h2>
+      <label><span class="row">Correlation threshold |r| <span class="value" id="corrValue">0.00</span></span>
         <input id="corr" type="range" min="0" max="1" value="0" step="0.01" />
       </label>
-      <label>Max lead day: <span class="value" id="leadValue">7</span>
+      <label><span class="row">Max lead (days) <span class="value" id="leadValue">7</span></span>
         <input id="lead" type="range" min="1" max="7" value="7" step="1" />
       </label>
-      <label>Edge significance
+      <label>Significance
         <select id="ty">
           <option value="sig">BH-FDR 5% only</option>
           <option value="p05">Raw p &lt; 0.05</option>
           <option value="all">All correlations</option>
         </select>
       </label>
+    </section>
+
+    <section>
+      <h2>Display</h2>
       <label>Edge display
         <select id="edgeMode">
           <option value="hover">Hover / selected node</option>
-          <option value="all">All</option>
+          <option value="all">All edges</option>
         </select>
       </label>
       <label>Selected node role
@@ -51,66 +76,82 @@
           <option value="lag">Lag only</option>
         </select>
       </label>
-      <label>View
-        <select id="view">
-          <option value="single">Single language</option>
-          <option value="compare">Compare all (2 x 2)</option>
-        </select>
-      </label>
-      <label>Export
-        <span class="btn-row">
-          <button id="download" type="button">PNG</button>
-          <button id="downloadSvg" type="button">SVG</button>
-        </span>
-      </label>
-    </div>
-  </header>
+    </section>
+
+    <section>
+      <h2>Export</h2>
+      <div class="btn-row">
+        <button id="download" type="button">PNG</button>
+        <button id="downloadSvg" type="button">SVG</button>
+      </div>
+      <button id="copyLink" type="button" class="ghost">Copy link to this view</button>
+    </section>
+
+    <div class="data-note" id="dataNote"></div>
+  </nav>
+
   <main>
+    <div class="view-head">
+      <div class="view-title" id="viewTitle"></div>
+      <div class="view-sub" id="viewSub"></div>
+    </div>
     <div class="canvas-wrap">
       <svg id="network" viewBox="0 0 1000 1000" role="img" aria-label="V1 causal network"></svg>
       <div class="loading" id="loading">Loading data&hellip;</div>
     </div>
-    <aside>
+  </main>
+
+  <aside>
+    <div class="node-card" id="nodeCard">
+      <div class="legend-title">Selected sector</div>
+      <div class="node-card-body" id="nodeCardBody">Hover or click a node on the ring. Click again to unlock.</div>
+    </div>
+
+    <div class="stats">
       <div class="stat"><span>Visible edges</span><strong id="edgeCount">0</strong></div>
       <div class="stat"><span>Linked nodes</span><strong id="nodeCount">0</strong></div>
-      <div class="stat"><span>Mean visible |r|</span><strong id="meanR">0.00</strong></div>
-      <div class="stat"><span>Mean lead day</span><strong id="meanLead">0.0</strong></div>
-      <div class="matrix-wrap">
-        <div class="legend-title">Edges by sector group (row leads column)</div>
-        <div id="groupMatrix"></div>
-      </div>
-      <div class="legend" id="groupLegend">
-        <div class="legend-title">Sector groups (ICIO V1)</div>
-        <div class="legend-row"><span class="swatch-dot" style="background:#5E9422"></span><span>Agriculture &amp; mining (1&ndash;8)</span></div>
-        <div class="legend-row"><span class="swatch-dot" style="background:#7E2F8E"></span><span>Light &amp; process manufacturing (9&ndash;19)</span></div>
-        <div class="legend-row"><span class="swatch-dot" style="background:#D95319"></span><span>Machinery &amp; transport equipment (20&ndash;27)</span></div>
-        <div class="legend-row"><span class="swatch-dot" style="background:#0072BD"></span><span>Utilities &amp; construction (28&ndash;30)</span></div>
-        <div class="legend-row"><span class="swatch-dot" style="background:#A2142F"></span><span>Trade, transport &amp; logistics (31&ndash;37)</span></div>
-        <div class="swatch-row legend-row"><span class="swatch-dot" style="background:#C9960C"></span><span>Information, finance &amp; business services (38&ndash;44)</span></div>
-        <div class="legend-row"><span class="swatch-dot" style="background:#2E9FD8"></span><span>Public &amp; social services (45&ndash;50)</span></div>
-      </div>
-      <div class="legend">
-        <div class="legend-row"><span class="swatch-line lead-fast"></span><span>Positive, lead 1&ndash;2 days</span></div>
-        <div class="legend-row"><span class="swatch-line lead-mid"></span><span>Positive, lead 3&ndash;4 days</span></div>
-        <div class="legend-row"><span class="swatch-line lead-slow"></span><span>Positive, lead 5&ndash;7 days</span></div>
-        <div class="legend-row"><span class="swatch-line neg"></span><span>Negative correlation (same shades by lead)</span></div>
-        <div class="legend-row"><span class="swatch-dot"></span><span>Node size = total sector exposure</span></div>
-        <div class="legend-row"><span class="value">+d</span><span>Edge label = source lead days</span></div>
-      </div>
-      <p class="hint">
-        Nodes are fixed radially: V1=1 at the top, then clockwise to V1=50,
-        with sector groups marked by the outer arcs. Dashed orange edges have
-        negative correlation. Edge labels (+d = source lead days) are shown
-        when at most 60 edges are visible, and always for a focused node. In hover mode, move over a
-        node (or press Enter on a focused node) to show its incident edges;
-        the role filter isolates edges the node leads or lags. Click to
-        lock/unlock a node.
-      </p>
-      <div class="data-note" id="dataNote"></div>
-    </aside>
-  </main>
+      <div class="stat"><span>Mean |r|</span><strong id="meanR">0.00</strong></div>
+      <div class="stat"><span>Mean lead (days)</span><strong id="meanLead">0.0</strong></div>
+    </div>
+
+    <div class="matrix-wrap">
+      <div class="legend-title">Edges by sector group (row leads column)</div>
+      <div id="groupMatrix"></div>
+    </div>
+
+    <div class="legend" id="groupLegend">
+      <div class="legend-title">Sector groups (ICIO V1)</div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#5E9422"></span><span>Agriculture &amp; mining (1&ndash;8)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#7E2F8E"></span><span>Light &amp; process manufacturing (9&ndash;19)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#D95319"></span><span>Machinery &amp; transport equipment (20&ndash;27)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#0072BD"></span><span>Utilities &amp; construction (28&ndash;30)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#A2142F"></span><span>Trade, transport &amp; logistics (31&ndash;37)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#C9960C"></span><span>Information, finance &amp; business services (38&ndash;44)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#2E9FD8"></span><span>Public &amp; social services (45&ndash;50)</span></div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-title">Edges</div>
+      <div class="legend-row"><span class="swatch-line lead-fast"></span><span>Positive, lead 1&ndash;2 days</span></div>
+      <div class="legend-row"><span class="swatch-line lead-mid"></span><span>Positive, lead 3&ndash;4 days</span></div>
+      <div class="legend-row"><span class="swatch-line lead-slow"></span><span>Positive, lead 5&ndash;7 days</span></div>
+      <div class="legend-row"><span class="swatch-line neg"></span><span>Negative correlation (same shades by lead)</span></div>
+      <div class="legend-row"><span class="swatch-dot"></span><span>Node size = total sector exposure</span></div>
+      <div class="legend-row"><span class="value">+d</span><span>Edge label = source lead days</span></div>
+    </div>
+
+    <p class="hint">
+      Nodes are fixed radially: V1=1 at the top, then clockwise to V1=50,
+      with sector groups marked by the outer arcs. Edge labels are shown
+      when at most 60 edges are visible, and always for a focused node.
+      In hover mode, move over a node (or press Enter on a focused node) to
+      show its incident edges; the role filter isolates edges the node
+      leads or lags. Click to lock/unlock a node.
+    </p>
+  </aside>
 </div>
 <div class="tooltip" id="tooltip"></div>
-<script type="module" src="assets/app.js?v=20260925b"></script>
+<div class="toast" id="toast"></div>
+<script type="module" src="assets/app.js?v=20260925c"></script>
 </body>
 </html>

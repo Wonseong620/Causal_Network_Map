@@ -14,6 +14,8 @@ https://wonseong620.github.io/Causal_Network_Map/
 
 ### Usage
 
+The page has three columns: filters on the left (Data, Edges, Display, Export), the network in the centre, and results on the right (selected sector card, summary statistics, edges by sector group, legends). Below 1240px the results move under the network; below 820px the filters collapse behind a **Filters** button.
+
 - **Data** selects the dataset: **v5** (share-transformed series, BH-FDR edge selection; the manuscript's specification of record) or the legacy **v3** (raw volume series).
 - **Language** switches between the Arabic, Chinese, English, and Persian corpora (each ~80KB, loaded on demand).
 - **Correlation threshold (|r|)** and **Max lead day** filter edges by the lagged Pearson correlation at the selected lead. Dashed orange edges indicate negative correlations.
