@@ -14,18 +14,23 @@ https://wonseong620.github.io/Causal_Network_Map/
 
 ### Usage
 
-- **Language** switches between the Arabic, Chinese, English, and Persian corpora (each ~170KB, loaded on demand).
-- **Correlation threshold (|r|)** and **Max lead day** filter edges by the largest absolute lagged Pearson correlation within the lead window. Dashed orange edges indicate negative correlations.
-- **TY test significance** restricts edges to those passing the Toda-Yamamoto Wald test.
-- **Edge display: Hover / selected node** shows only edges incident to the hovered or clicked (locked) sector; the **role** filter isolates edges the sector leads or lags. Nodes are keyboard-accessible (Tab + Enter).
+- **Data** selects the dataset: **v5** (share-transformed series, BH-FDR edge selection; the manuscript's specification of record) or the legacy **v3** (raw volume series).
+- **Language** switches between the Arabic, Chinese, English, and Persian corpora (each ~80KB, loaded on demand).
+- **Correlation threshold (|r|)** and **Max lead day** filter edges by the lagged Pearson correlation at the selected lead. Dashed orange edges indicate negative correlations.
+- **Edge significance** restricts edges to BH-FDR-significant pairs (v5) or TY-significant pairs (v3), raw p < 0.05, or shows all correlations.
+- **Edge display: Hover / selected node** shows only edges incident to the hovered or clicked (locked) sector; the **role** filter isolates edges the sector leads or lags. Nodes are keyboard-accessible (Tab + Enter). Edge labels (`+d`, source lead days) appear when at most 60 edges are visible and always for a focused node.
 - **Compare all (2 x 2)** renders all four language networks under matched filters — the layout used for the four-language comparison figure in the manuscript.
-- **Download PNG** exports the current view at 2200 x 2200.
+- **Export** downloads the current view as PNG (2200 px wide) or SVG.
+
+Node colours mark the seven ICIO V1 sector groups (agriculture & mining 1–8, light & process manufacturing 9–19, machinery & transport equipment 20–27, utilities & construction 28–30, trade, transport & logistics 31–37, information, finance & business services 38–44, public & social services 45–50); the outer arcs trace the same groups. The palette is shared with the manuscript figures and was checked for colour-vision deficiency on adjacent arcs.
+
+URL parameters preset every control, e.g. `?dataset=v5&language=Chinese&edgeMode=hover&node=16&nodeRole=lead`. Adding `export=paper` hides the page chrome, enlarges labels for print, and adds an in-figure legend; `replication/code/export_paper_figures.mjs` uses this mode to print the manuscript's network figures to vector PDF with headless Chromium.
 
 ### Data
 
-`data/v3/<language>.json` — 50 ICIO V1 sector nodes and all 2,450 ordered sector pairs per language, with 7-day lagged correlations and Toda-Yamamoto test results (v3, raw volume series). An updated analysis (share-transformed series, BH-FDR edge selection) is in progress and will replace this dataset.
+`data/v5/<language>.json` — 50 ICIO V1 sector nodes and all 2,450 ordered sector pairs per language from the replication package (share-transformed series, BH-FDR 5%). Built by `replication/code/build_viewer_v5.py`. Edge row format: `[source_v1, target_v1, fdr_significant, ty_pvalue, ty_lag, lead_days, pearson_r]`.
 
-Edge row format: `[source_v1, target_v1, ty_significant, ty_pvalue, ty_lag, r_lead1 ... r_lead7]`.
+`data/v3/<language>.json` — legacy raw-volume series with 7-day lagged correlations, kept for comparison. Edge row format: `[source_v1, target_v1, ty_significant, ty_pvalue, ty_lag, r_lead1 ... r_lead7]`.
 
 ## Replication package
 
@@ -39,9 +44,8 @@ analysis/figure scripts. See [`replication/README.md`](replication/README.md) fo
 the full manifest and a mapping to the paper.
 
 **Raw article text is not redistributed** for copyright reasons; only derived
-quantities and non-text metadata are included. The corrected series here
-(share-transformed, BH-FDR-selected) supersede the raw-volume `data/v3/` data
-used by the live viewer.
+quantities and non-text metadata are included. The live viewer's default
+`data/v5/` dataset is built from these files.
 
 ## Citation
 

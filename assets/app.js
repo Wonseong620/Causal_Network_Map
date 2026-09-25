@@ -1,17 +1,45 @@
 /* Interactive Causal Network Map
- * Data: data/v3/<language>.json  (edge rows: [s, t, ty, p, pLag, r1..r7])
+ * Data: data/v5/<language>.json  (edge rows: [s, t, fdr, p, pLag, lead, r])
+ *       data/v3/<language>.json  (edge rows: [s, t, ty, p, pLag, r1..r7], legacy)
  * Rendering strategy: the SVG scene is rebuilt only when filters change;
  * hover / selection updates toggle CSS classes on the existing DOM.
+ * Add ?export=paper to the URL for a chrome-free, print-style view.
  */
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const COLORS = ["#0072bd", "#d95319", "#edb120", "#7e2f8e", "#77ac30", "#4dbeee", "#a2142f"];
-const DATA_VERSION = "TY v3 (raw volume series)";
+
+/* Sector groups: ICIO V1 sectors fall into seven contiguous blocks, so each
+ * group is one arc of the ring. Colours are shared with the manuscript
+ * (figures_code/qq_style.py) and were validated for colour-vision
+ * deficiency on adjacent arcs. */
+const GROUPS = [
+  { key: "primary",   label: "Agriculture & mining",                    first: 1,  last: 8,  color: "#5E9422" },
+  { key: "light_mfg", label: "Light & process manufacturing",           first: 9,  last: 19, color: "#7E2F8E" },
+  { key: "machinery", label: "Machinery & transport equipment",         first: 20, last: 27, color: "#D95319" },
+  { key: "utilities", label: "Utilities & construction",                first: 28, last: 30, color: "#0072BD" },
+  { key: "trade",     label: "Trade, transport & logistics",            first: 31, last: 37, color: "#A2142F" },
+  { key: "info_fin",  label: "Information, finance & business services", first: 38, last: 44, color: "#C9960C" },
+  { key: "public",    label: "Public & social services",                first: 45, last: 50, color: "#2E9FD8" },
+];
+const groupOf = v1 => GROUPS.find(g => v1 >= g.first && v1 <= g.last);
+const sectorColor = v1 => groupOf(v1).color;
+
+const EDGE_LABEL_MAX = 60;        // hide +Nd labels above this many visible edges
+const DATASETS = {
+  v5: { sigLabel: "BH-FDR 5% only" },
+  v3: { sigLabel: "TY-significant only" },
+};
+
+const params = new URLSearchParams(location.search);
+const PAPER = params.get("export") === "paper";
+if (PAPER) document.body.classList.add("paper");
+const CY = PAPER ? 505 : 545;          // ring centre; leaves room for the title when not in paper mode
 
 const svg = document.getElementById("network");
 const tooltip = document.getElementById("tooltip");
 const loading = document.getElementById("loading");
 const controls = {
+  dataset: document.getElementById("dataset"),
   language: document.getElementById("language"),
   corr: document.getElementById("corr"),
   lead: document.getElementById("lead"),
@@ -27,28 +55,25 @@ const stats = {
   meanLead: document.getElementById("meanLead"),
 };
 
-const cache = new Map();       // language -> payload
+const cache = new Map();       // "<dataset>/<language>" -> payload
 let hoverNode = null;
 let selectedNode = null;
 let scene = null;              // built DOM references for current filter set
 
 // ---------- data ----------
 async function loadLanguage(language) {
-  const key = language.toLowerCase();
+  const ds = controls.dataset.value;
+  const key = `${ds}/${language.toLowerCase()}`;
   if (cache.has(key)) return cache.get(key);
   loading.classList.add("on");
   try {
-    const resp = await fetch(`data/v3/${key}.json`);
+    const resp = await fetch(`data/${key}.json`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${key}.json`);
     const raw = await resp.json();
-    const payload = {
-      meta: raw.meta,
-      nodes: raw.nodes,
-      edges: raw.edges.map(row => ({
-        s: row[0], t: row[1], ty: row[2], p: row[3], pLag: row[4],
-        r: row.slice(5),
-      })),
-    };
+    const edges = ds === "v5"
+      ? raw.edges.map(row => ({ s: row[0], t: row[1], sig: row[2], p: row[3], pLag: row[4], lead: row[5], r: row[6] }))
+      : raw.edges.map(row => ({ s: row[0], t: row[1], sig: row[2], p: row[3], pLag: row[4], rByLead: row.slice(5) }));
+    const payload = { dataset: ds, meta: raw.meta, nodes: raw.nodes, edges };
     cache.set(key, payload);
     return payload;
   } finally {
@@ -57,21 +82,20 @@ async function loadLanguage(language) {
 }
 
 // ---------- geometry ----------
-function polarPosition(v1, cx = 500, cy = 505, scale = 1) {
+function polarPosition(v1, cx = 500, cy = CY, scale = 1) {
   const angle = Math.PI / 2 - 2 * Math.PI * (v1 - 1) / 50;
   const radius = (v1 % 2 === 0 ? 320 : 400) * scale;
   return { x: cx + radius * Math.cos(angle), y: cy - radius * Math.sin(angle) };
 }
 
-/* Pick the lag with the largest |r| within the lead window — matches the
- * pipeline's best_positive_lead_corr (abs comparison), unlike the previous
- * viewer which compared raw r and silently dropped negative-correlation
- * edges. */
-function bestEdge(edge, maxLead) {
-  let bestLag = 1;
-  let bestR = 0;
+const NODE_R0 = PAPER ? 15 : 12;   // paper export needs larger minimum nodes for print-size labels
+const nodeRadius = (total, maxTotal, scale = 1) => (NODE_R0 + 24 * Math.sqrt(total / maxTotal)) * scale;
+
+/* v3 only: pick the lag with the largest |r| within the lead window. */
+function bestByLead(rByLead, maxLead) {
+  let bestLag = 1, bestR = 0;
   for (let i = 0; i < maxLead; i++) {
-    const r = edge.r[i] || 0;
+    const r = rByLead[i] || 0;
     if (Math.abs(r) > Math.abs(bestR)) { bestR = r; bestLag = i + 1; }
   }
   return { lead: bestLag, r: bestR };
@@ -101,6 +125,17 @@ function unit(p, q) {
   return { x: dx / len, y: dy / len };
 }
 
+/* Arc spanning sectors v1First..v1Last clockwise, padded by 0.4 sector. */
+function arcPath(cx, cy, r, v1First, v1Last) {
+  const step = 2 * Math.PI / 50;
+  const a0 = Math.PI / 2 - (v1First - 1 - 0.4) * step;
+  const a1 = Math.PI / 2 - (v1Last - 1 + 0.4) * step;
+  const p0 = { x: cx + r * Math.cos(a0), y: cy - r * Math.sin(a0) };
+  const p1 = { x: cx + r * Math.cos(a1), y: cy - r * Math.sin(a1) };
+  const large = (a0 - a1) > Math.PI ? 1 : 0;
+  return `M ${p0.x.toFixed(1)} ${p0.y.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}`;
+}
+
 // ---------- svg helpers ----------
 function el(name, attrs = {}, text = "") {
   const node = document.createElementNS(SVG_NS, name);
@@ -125,25 +160,64 @@ function arrowMarkers(defs) {
   }
 }
 
+function groupArcs(cx, cy, scale) {
+  const g = el("g", { class: "group-arcs" });
+  for (const grp of GROUPS) {
+    g.appendChild(el("path", {
+      d: arcPath(cx, cy, 448 * scale, grp.first, grp.last),
+      stroke: grp.color, "stroke-width": (5 * scale).toFixed(1), fill: "none",
+      "stroke-linecap": "round",
+    }));
+  }
+  return g;
+}
+
+/* In-SVG legend used by the paper export (the page legend lives in <aside>). */
+function svgLegend(y0) {
+  const g = el("g", { class: "svg-legend" });
+  GROUPS.forEach((grp, i) => {
+    const col = Math.floor(i / 4), row = i % 4;
+    const x = 40 + col * 480, y = y0 + row * 26;
+    g.appendChild(el("circle", { cx: x, cy: y, r: 6, fill: grp.color, stroke: "white", "stroke-width": 1 }));
+    g.appendChild(el("text", { x: x + 16, y: y + 5, class: "legend-text" }, `${grp.label} (${grp.first}–${grp.last})`));
+  });
+  const y = y0 + 3 * 26, x = 40 + 480;
+  g.appendChild(el("path", { d: `M ${x - 6} ${y} L ${x + 30} ${y}`, class: "edge", style: "opacity:1", "stroke-width": 3 }));
+  g.appendChild(el("text", { x: x + 40, y: y + 5, class: "legend-text" }, "Positive lead-lag"));
+  g.appendChild(el("path", { d: `M ${x + 220} ${y} L ${x + 256} ${y}`, class: "edge neg", style: "opacity:1", "stroke-width": 3 }));
+  g.appendChild(el("text", { x: x + 266, y: y + 5, class: "legend-text" }, "Negative lead-lag"));
+  return g;
+}
+
 // ---------- filtering ----------
 function currentFilters() {
   return {
     corrMin: Number(controls.corr.value),
     maxLead: Number(controls.lead.value),
-    tyRequired: Number(controls.ty.value),
+    sig: controls.ty.value,           // "sig" | "p05" | "all"
   };
 }
 
 function visibleEdges(payload, f) {
   const out = [];
   for (const edge of payload.edges) {
-    if (f.tyRequired && edge.ty !== 1) continue;
-    const best = bestEdge(edge, f.maxLead);
-    if (Math.abs(best.r) >= f.corrMin) {
-      out.push({ ...edge, lead: best.lead, bestR: best.r });
+    if (f.sig === "sig" && edge.sig !== 1) continue;
+    if (f.sig === "p05" && !(edge.p !== null && edge.p < 0.05)) continue;
+    let lead, r;
+    if (payload.dataset === "v5") {
+      lead = edge.lead; r = edge.r;
+      if (lead > f.maxLead) continue;
+    } else {
+      ({ lead, r } = bestByLead(edge.rByLead, f.maxLead));
     }
+    if (Math.abs(r) >= f.corrMin) out.push({ ...edge, lead, bestR: r });
   }
   return out;
+}
+
+function sigLabel(f) {
+  if (f.sig === "sig") return controls.dataset.value === "v5" ? "BH-FDR 5%" : "TY-significant";
+  return f.sig === "p05" ? "raw p<0.05" : "all correlations";
 }
 
 // ---------- scene construction (filter changes only) ----------
@@ -152,22 +226,29 @@ function buildScene(payload, language) {
   const edges = visibleEdges(payload, f);
   const nodes = payload.nodes;
   const maxTotal = Math.max(...nodes.map(d => d.total), 1);
-  const radiusByV1 = new Map(nodes.map(d => [d.v1, 9 + 18 * Math.sqrt(d.total / maxTotal)]));
+  const radiusByV1 = new Map(nodes.map(d => [d.v1, nodeRadius(d.total, maxTotal)]));
+  const showLabels = edges.length <= EDGE_LABEL_MAX;
 
   svg.replaceChildren();
   const defs = el("defs");
   arrowMarkers(defs);
   svg.appendChild(defs);
+  svg.setAttribute("viewBox", PAPER ? "0 0 1000 1100" : "0 0 1000 1000");
+  svg.classList.toggle("paper", PAPER);
 
-  svg.appendChild(el("text", { x: 500, y: 42, class: "title" },
-    `${language} Media Lead-Lag by Sectors`));
-  const sub = el("text", { x: 500, y: 70, class: "subtitle" });
-  svg.appendChild(sub);
-  svg.appendChild(el("text", { x: 500, y: 90, class: "datastamp" },
-    `Data: ${DATA_VERSION} - updated analysis in progress`));
+  let sub = null;
+  if (!PAPER) {
+    svg.appendChild(el("text", { x: 500, y: 42, class: "title" },
+      `${language} Media Lead-Lag by Sectors`));
+    sub = el("text", { x: 500, y: 70, class: "subtitle" });
+    svg.appendChild(sub);
+    svg.appendChild(el("text", { x: 500, y: 88, class: "datastamp" },
+      `Data: ${payload.meta.dataset}`));
+  }
 
-  const emptyMsg = el("text", { x: 500, y: 505, class: "empty-msg" });
+  const emptyMsg = el("text", { x: 500, y: CY, class: "empty-msg" });
   svg.appendChild(emptyMsg);
+  svg.appendChild(groupArcs(500, CY, 1));
 
   const edgeLayer = el("g");
   const labelLayer = el("g");
@@ -204,15 +285,16 @@ function buildScene(payload, language) {
     g.setAttribute("aria-label", `Sector V1 ${node.v1}: ${node.industry}`);
     g.appendChild(el("circle", {
       cx: p.x, cy: p.y, r: (radiusByV1.get(node.v1) || 10).toFixed(2),
-      fill: COLORS[(node.v1 - 1) % COLORS.length],
+      fill: sectorColor(node.v1),
     }));
     g.appendChild(el("text", { x: p.x, y: p.y }, String(node.v1)));
     nodeLayer.appendChild(g);
     nodeEls.set(node.v1, g);
   }
   svg.appendChild(nodeLayer);
+  if (PAPER) svg.appendChild(svgLegend(975));
 
-  scene = { payload, language, edges, edgeEls, nodeEls, sub, emptyMsg, filters: f };
+  scene = { payload, language, edges, edgeEls, nodeEls, sub, emptyMsg, filters: f, showLabels };
   updateInteraction();
 }
 
@@ -239,7 +321,8 @@ function updateInteraction() {
       show = e.s === active || e.t === active;
     }
     path.classList.toggle("hidden", !show);
-    label.classList.toggle("hidden", !show);
+    // Labels: always on for a focused node, otherwise only when the graph is sparse.
+    label.classList.toggle("hidden", !show || (mode === "all" && !scene.showLabels));
     if (show) {
       rendered++;
       sumR += Math.abs(e.bestR);
@@ -256,13 +339,14 @@ function updateInteraction() {
   }
 
   const f = scene.filters;
-  scene.sub.textContent =
-    `50 V1 sectors | ${rendered} rendered / ${scene.edges.length} matched edges | ` +
-    `|r| >= ${f.corrMin.toFixed(2)} | max lead <= ${f.maxLead}d | ` +
-    (f.tyRequired ? "TY-significant" : "all correlations");
+  if (scene.sub) {
+    scene.sub.textContent =
+      `50 V1 sectors | ${rendered} rendered / ${scene.edges.length} matched edges | ` +
+      `|r| >= ${f.corrMin.toFixed(2)} | max lead <= ${f.maxLead}d | ${sigLabel(f)}`;
+  }
 
   if (scene.edges.length === 0) {
-    scene.emptyMsg.textContent = "No edges match the current filters - lower the |r| threshold or set TY to all correlations.";
+    scene.emptyMsg.textContent = "No edges match the current filters - lower the |r| threshold or relax the significance filter.";
   } else if (mode === "hover" && !active) {
     scene.emptyMsg.textContent = "Hover or click a sector node to explore its lead-lag edges.";
   } else {
@@ -285,28 +369,38 @@ async function buildCompare() {
   const defs = el("defs");
   arrowMarkers(defs);
   svg.appendChild(defs);
-  svg.appendChild(el("text", { x: 500, y: 34, class: "title" },
-    "Four-Language Lead-Lag Comparison"));
-  svg.appendChild(el("text", { x: 500, y: 58, class: "subtitle" },
-    `|r| >= ${f.corrMin.toFixed(2)} | max lead <= ${f.maxLead}d | ` +
-    (f.tyRequired ? "TY-significant" : "all correlations")));
-  svg.appendChild(el("text", { x: 500, y: 76, class: "datastamp" },
-    `Data: ${DATA_VERSION} - updated analysis in progress`));
+  svg.setAttribute("viewBox", PAPER ? "0 0 1000 1100" : "0 0 1000 1000");
+  svg.classList.toggle("paper", PAPER);
+  if (!PAPER) {
+    svg.appendChild(el("text", { x: 500, y: 30, class: "title" },
+      "Four-Language Lead-Lag Comparison"));
+    svg.appendChild(el("text", { x: 500, y: 50, class: "subtitle" },
+      `|r| >= ${f.corrMin.toFixed(2)} | max lead <= ${f.maxLead}d | ${sigLabel(f)}`));
+    svg.appendChild(el("text", { x: 500, y: 66, class: "datastamp" },
+      `Data: ${payloads[0].meta.dataset}`));
+  }
 
-  const centers = [[260, 300], [740, 300], [260, 760], [740, 760]];
-  const scale = 0.52;
+  const top = PAPER ? 70 : 95;
+  const centers = [[260, top + 215], [740, top + 215], [260, top + 690], [740, top + 690]];
+  const scale = 0.46;
+  const panelLabels = ["(a)", "(b)", "(c)", "(d)"];
   langs.forEach((lang, i) => {
     const payload = payloads[i];
     const [cx, cy] = centers[i];
     const edges = visibleEdges(payload, f);
     const maxTotal = Math.max(...payload.nodes.map(d => d.total), 1);
     const g = el("g");
-    g.appendChild(el("text", { x: cx, y: cy - 225, class: "panel-title" },
-      `${lang} (${edges.length} edges)`));
+    g.appendChild(el("text", { x: cx, y: cy - 226, class: "panel-title" },
+      `${PAPER ? panelLabels[i] + " " : ""}${lang} (${edges.length} edges)`));
+    g.appendChild(groupArcs(cx, cy, scale));
+    if (edges.length === 0) {
+      g.appendChild(el("text", { x: cx, y: cy + 5, class: "empty-msg" }, "No selected edges"));
+    }
+    const radiusByV1 = new Map(payload.nodes.map(d => [d.v1, nodeRadius(d.total, maxTotal, scale)]));
     for (const e of edges) {
       const a = polarPosition(e.s, cx, cy, scale);
       const b = polarPosition(e.t, cx, cy, scale);
-      const geo = trimmedCurve(a, b, 5, 5);
+      const geo = trimmedCurve(a, b, radiusByV1.get(e.s), radiusByV1.get(e.t));
       const neg = e.bestR < 0;
       g.appendChild(el("path", {
         d: `M ${geo.a.x} ${geo.a.y} Q ${geo.c.x} ${geo.c.y} ${geo.b.x} ${geo.b.y}`,
@@ -317,15 +411,17 @@ async function buildCompare() {
     }
     for (const node of payload.nodes) {
       const p = polarPosition(node.v1, cx, cy, scale);
-      const r = 3.5 + 8 * Math.sqrt(node.total / maxTotal);
-      g.appendChild(el("circle", {
-        cx: p.x, cy: p.y, r: r.toFixed(2),
-        fill: COLORS[(node.v1 - 1) % COLORS.length],
-        stroke: "white", "stroke-width": "0.8",
+      const ng = el("g", { class: "node small" });
+      ng.appendChild(el("circle", {
+        cx: p.x, cy: p.y, r: radiusByV1.get(node.v1).toFixed(2),
+        fill: sectorColor(node.v1),
       }));
+      ng.appendChild(el("text", { x: p.x, y: p.y }, String(node.v1)));
+      g.appendChild(ng);
     }
     svg.appendChild(g);
   });
+  if (PAPER) svg.appendChild(svgLegend(985));
   scene = null;
   stats.edgeCount.textContent = "-";
   stats.nodeCount.textContent = "-";
@@ -334,7 +430,16 @@ async function buildCompare() {
 }
 
 // ---------- render orchestration ----------
+function syncDatasetUi() {
+  const ds = controls.dataset.value;
+  controls.ty.querySelector('option[value="sig"]').textContent = DATASETS[ds].sigLabel;
+  document.getElementById("dataNote").textContent = ds === "v5"
+    ? "Data: v5 - within-day share-transformed series; edges selected by Benjamini-Hochberg FDR (5%) over all 2,450 ordered sector pairs. Specification of record for the manuscript."
+    : "Data: v3 - raw volume series with a fixed |r| cutoff. Kept for comparison; superseded by v5.";
+}
+
 async function render({ rebuild = true } = {}) {
+  syncDatasetUi();
   if (controls.view.value === "compare") {
     await buildCompare();
     return;
@@ -353,26 +458,27 @@ async function render({ rebuild = true } = {}) {
 
 // ---------- event delegation ----------
 svg.addEventListener("pointerover", evt => {
-  const nodeG = evt.target.closest(".node");
+  const nodeG = evt.target.closest(".node[data-v1]");
   if (nodeG) {
     hoverNode = Number(nodeG.dataset.v1);
     updateInteraction();
     const n = scene?.payload.nodes.find(d => d.v1 === hoverNode);
-    if (n) showTip(evt, `<b>V1 ${n.v1} ${n.code}</b><br>${n.industry}<br>total=${n.total.toFixed(2)}<br>active days=${n.active}`);
+    if (n) showTip(evt, `<b>V1 ${n.v1} ${n.code}</b><br>${n.industry}<br><i>${groupOf(n.v1).label}</i><br>total=${n.total.toFixed(2)}<br>active days=${n.active}`);
     return;
   }
   const pathEl = evt.target.closest("[data-edge]");
   if (pathEl && scene) {
     const e = scene.edgeEls[Number(pathEl.dataset.edge)].e;
+    const sig = controls.dataset.value === "v5" ? "BH-FDR significant" : "TY-significant";
     showTip(evt, `V1 ${e.s} &rarr; V1 ${e.t}<br>lead +${e.lead}d<br>r=${e.bestR.toFixed(3)}<br>` +
-      `${e.ty ? "TY-significant" : "not TY-significant"}${e.p !== null ? "<br>" + fmtP(e.p) : ""}`);
+      `${e.sig ? sig : "not " + sig}${e.p !== null ? "<br>" + fmtP(e.p) : ""}`);
   }
 });
 svg.addEventListener("pointermove", evt => {
   if (tooltip.style.display === "block") moveTip(evt);
 });
 svg.addEventListener("pointerout", evt => {
-  const nodeG = evt.target.closest(".node");
+  const nodeG = evt.target.closest(".node[data-v1]");
   if (nodeG && !nodeG.contains(evt.relatedTarget)) {
     hoverNode = null;
     updateInteraction();
@@ -380,14 +486,14 @@ svg.addEventListener("pointerout", evt => {
   hideTip();
 });
 svg.addEventListener("click", evt => {
-  const nodeG = evt.target.closest(".node");
+  const nodeG = evt.target.closest(".node[data-v1]");
   if (!nodeG) return;
   const v1 = Number(nodeG.dataset.v1);
   selectedNode = selectedNode === v1 ? null : v1;
   updateInteraction();
 });
 svg.addEventListener("keydown", evt => {
-  const nodeG = evt.target.closest(".node");
+  const nodeG = evt.target.closest(".node[data-v1]");
   if (!nodeG || (evt.key !== "Enter" && evt.key !== " ")) return;
   evt.preventDefault();
   const v1 = Number(nodeG.dataset.v1);
@@ -407,7 +513,7 @@ function moveTip(evt) {
 function hideTip() { tooltip.style.display = "none"; }
 
 // filter controls rebuild the scene; display controls only retoggle classes
-for (const id of ["language", "corr", "lead", "ty", "view"]) {
+for (const id of ["dataset", "language", "corr", "lead", "ty", "view"]) {
   controls[id].addEventListener("input", () => {
     selectedNode = null;
     render({ rebuild: true });
@@ -417,50 +523,82 @@ for (const id of ["edgeMode", "nodeRole"]) {
   controls[id].addEventListener("input", () => render({ rebuild: false }));
 }
 
-// ---------- PNG export ----------
-document.getElementById("download").addEventListener("click", () => {
-  const clone = svg.cloneNode(true);
-  clone.setAttribute("xmlns", SVG_NS);
-  const style = document.createElementNS(SVG_NS, "style");
-  style.textContent = `
+// ---------- export ----------
+const EXPORT_CSS = `
     text { font-family: Arial, Helvetica, sans-serif; }
-    circle { stroke: white; stroke-width: 1.7; }
-    .node text { fill: white; font-size: 10px; font-weight: 800; text-anchor: middle; dominant-baseline: central; }
+    .node circle { stroke: white; stroke-width: 1.7; }
+    .node text { fill: white; font-size: 12px; font-weight: 800; text-anchor: middle; dominant-baseline: central; }
+    .node.small text { font-size: 7px; }
     .node.dim circle, .node.dim text { opacity: .22; }
+    .node.selected circle { stroke: #111; stroke-width: 3; }
     .edge { fill: none; stroke: #0072bd; stroke-linecap: round; opacity: .43; }
     .edge.neg { stroke: #d95319; stroke-dasharray: 6 4; }
     .edge.hidden, .edge-label.hidden { display: none; }
-    .edge-label { fill: #0072bd; font-size: 7px; font-weight: 700; paint-order: stroke; stroke: white; stroke-width: 3px; stroke-linejoin: round; }
+    .edge-label { fill: #0072bd; font-size: 8px; font-weight: 700; paint-order: stroke; stroke: white; stroke-width: 3px; stroke-linejoin: round; }
     .edge-label.neg { fill: #d95319; }
     .title { font-size: 18px; font-weight: 800; text-anchor: middle; }
     .subtitle { fill: #20262d; font-size: 13px; font-weight: 700; text-anchor: middle; }
     .datastamp { fill: #8a929b; font-size: 10px; text-anchor: middle; }
     .empty-msg { fill: #5d6670; font-size: 15px; font-weight: 700; text-anchor: middle; }
-    .panel-title { font-size: 13px; font-weight: 800; text-anchor: middle; }
+    .panel-title { font-size: 14px; font-weight: 800; text-anchor: middle; }
+    .legend-text { fill: #111; font-size: 12px; }
+    svg.paper .node text { font-size: 15px; }
+    svg.paper .node.small text { font-size: 9px; }
+    svg.paper .edge-label { font-size: 11px; }
+    svg.paper .panel-title { font-size: 20px; }
+    svg.paper .legend-text { font-size: 17px; }
+    svg.paper .empty-msg { font-size: 18px; }
   `;
+
+function exportName(ext) {
+  const view = controls.view.value === "compare" ? "compare" : controls.language.value.toLowerCase();
+  const corr = Number(controls.corr.value).toFixed(2).replace(".", "p");
+  return `network_${controls.dataset.value}_${view}_corr${corr}_lead${controls.lead.value}_${controls.ty.value}.${ext}`;
+}
+
+function serializeSvg() {
+  const clone = svg.cloneNode(true);
+  clone.setAttribute("xmlns", SVG_NS);
+  const style = document.createElementNS(SVG_NS, "style");
+  style.textContent = EXPORT_CSS;
   clone.insertBefore(style, clone.firstChild);
-  const svgText = new XMLSerializer().serializeToString(clone);
-  const url = URL.createObjectURL(new Blob([svgText], { type: "image/svg+xml;charset=utf-8" }));
+  return new XMLSerializer().serializeToString(clone);
+}
+
+function download(href, name) {
+  const a = document.createElement("a");
+  a.href = href; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+document.getElementById("downloadSvg").addEventListener("click", () => {
+  const url = URL.createObjectURL(new Blob([serializeSvg()], { type: "image/svg+xml;charset=utf-8" }));
+  download(url, exportName("svg"));
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+document.getElementById("download").addEventListener("click", () => {
+  const url = URL.createObjectURL(new Blob([serializeSvg()], { type: "image/svg+xml;charset=utf-8" }));
   const img = new Image();
   img.onload = () => {
+    const [, , vw, vh] = svg.getAttribute("viewBox").split(" ").map(Number);
     const canvas = document.createElement("canvas");
     canvas.width = 2200;
-    canvas.height = 2200;
+    canvas.height = Math.round(2200 * vh / vw);
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     URL.revokeObjectURL(url);
-    const a = document.createElement("a");
-    const view = controls.view.value === "compare" ? "compare" : controls.language.value.toLowerCase();
-    const corr = Number(controls.corr.value).toFixed(2).replace(".", "p");
-    a.href = canvas.toDataURL("image/png");
-    a.download = `ty_v1_network_${view}_corr${corr}_lead${controls.lead.value}_ty${controls.ty.value}.png`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    download(canvas.toDataURL("image/png"), exportName("png"));
   };
   img.src = url;
 });
 
+// URL presets, e.g. ?dataset=v5&language=English&corr=0&lead=7&ty=sig&edgeMode=all&view=single
+// Add &node=26&nodeRole=lead to lock a focal sector, &export=paper for a print view.
+for (const id of Object.keys(controls)) {
+  if (params.has(id)) controls[id].value = params.get(id);
+}
+if (params.has("node")) selectedNode = Number(params.get("node"));
 render({ rebuild: true });
