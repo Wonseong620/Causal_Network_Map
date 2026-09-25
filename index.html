@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Interactive Causal Network Map</title>
-  <link rel="stylesheet" href="assets/style.css" />
+  <link rel="stylesheet" href="assets/style.css?v=20260925b" />
 </head>
 <body>
 <div class="app">
@@ -90,8 +90,10 @@
         <div class="legend-row"><span class="swatch-dot" style="background:#2E9FD8"></span><span>Public &amp; social services (45&ndash;50)</span></div>
       </div>
       <div class="legend">
-        <div class="legend-row"><span class="swatch-line"></span><span>Positive lead-lag correlation</span></div>
-        <div class="legend-row"><span class="swatch-line neg"></span><span>Negative lead-lag correlation</span></div>
+        <div class="legend-row"><span class="swatch-line lead-fast"></span><span>Positive, lead 1&ndash;2 days</span></div>
+        <div class="legend-row"><span class="swatch-line lead-mid"></span><span>Positive, lead 3&ndash;4 days</span></div>
+        <div class="legend-row"><span class="swatch-line lead-slow"></span><span>Positive, lead 5&ndash;7 days</span></div>
+        <div class="legend-row"><span class="swatch-line neg"></span><span>Negative correlation (same shades by lead)</span></div>
         <div class="legend-row"><span class="swatch-dot"></span><span>Node size = total sector exposure</span></div>
         <div class="legend-row"><span class="value">+d</span><span>Edge label = source lead days</span></div>
       </div>
@@ -109,6 +111,6 @@
   </main>
 </div>
 <div class="tooltip" id="tooltip"></div>
-<script type="module" src="assets/app.js"></script>
+<script type="module" src="assets/app.js?v=20260925b"></script>
 </body>
 </html>

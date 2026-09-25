@@ -72,6 +72,8 @@ aside { border-left: 1px solid var(--line); background: var(--panel); padding: 1
 .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .legend-row { display: flex; align-items: center; gap: 9px; }
 .swatch-line { width: 42px; height: 0; border-top: 5px solid var(--blue); }
+.swatch-line.lead-mid { border-top-color: #4F9FD9; }
+.swatch-line.lead-slow { border-top-color: #8ABEE6; }
 .swatch-line.neg { border-top-color: var(--orange); border-top-style: dashed; }
 .swatch-dot { width: 16px; height: 16px; border-radius: 50%; background: #808080; }
 .hint { margin-top: 18px; color: var(--muted); font-size: 12px; line-height: 1.45; }
@@ -118,6 +120,11 @@ aside { border-left: 1px solid var(--line); background: var(--panel); padding: 1
   transition: opacity .12s;
 }
 .edge.neg { stroke: var(--orange); stroke-dasharray: 6 4; }
+/* lead-day shades: darker = faster */
+.edge.lead-mid { stroke: #4F9FD9; }
+.edge.lead-slow { stroke: #8ABEE6; }
+.edge.neg.lead-mid { stroke: #EE8A5E; }
+.edge.neg.lead-slow { stroke: #F2B08F; }
 .edge.hidden, .edge-label.hidden { display: none; }
 .edge-label {
   fill: var(--blue);

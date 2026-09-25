@@ -149,8 +149,19 @@ function fmtP(p) {
   return p < 0.001 ? "p&lt;0.001" : `p=${p.toFixed(3)}`;
 }
 
+/* Edge shade by source lead: darker = faster. */
+const LEAD_SHADES = {
+  fast: { pos: "#0072bd", neg: "#d95319" },
+  mid:  { pos: "#4F9FD9", neg: "#EE8A5E" },
+  slow: { pos: "#8ABEE6", neg: "#F2B08F" },
+};
+const leadClass = lead => (lead <= 2 ? "lead-fast" : lead <= 4 ? "lead-mid" : "lead-slow");
+const markerId = (lead, neg) => `arrow-${leadClass(lead).slice(5)}-${neg ? "neg" : "pos"}`;
+
 function arrowMarkers(defs) {
-  for (const [id, color] of [["arrow", "#0072bd"], ["arrowNeg", "#d95319"]]) {
+  const list = [];
+  for (const [k, c] of Object.entries(LEAD_SHADES)) list.push([`arrow-${k}-pos`, c.pos], [`arrow-${k}-neg`, c.neg]);
+  for (const [id, color] of list) {
     const m = el("marker", {
       id, viewBox: "0 0 10 10", refX: "10", refY: "5",
       markerWidth: "5", markerHeight: "5", orient: "auto-start-reverse",
@@ -182,10 +193,15 @@ function svgLegend(y0) {
     g.appendChild(el("text", { x: x + 16, y: y + 5, class: "legend-text" }, `${grp.label} (${grp.first}–${grp.last})`));
   });
   const y = y0 + 3 * 26, x = 40 + 480;
-  g.appendChild(el("path", { d: `M ${x - 6} ${y} L ${x + 30} ${y}`, class: "edge", style: "opacity:1", "stroke-width": 3 }));
-  g.appendChild(el("text", { x: x + 40, y: y + 5, class: "legend-text" }, "Positive lead-lag"));
-  g.appendChild(el("path", { d: `M ${x + 220} ${y} L ${x + 256} ${y}`, class: "edge neg", style: "opacity:1", "stroke-width": 3 }));
-  g.appendChild(el("text", { x: x + 266, y: y + 5, class: "legend-text" }, "Negative lead-lag"));
+  const rows = [["lead-fast", "Lead 1\u20132 d"], ["lead-mid", "3\u20134 d"], ["lead-slow", "5\u20137 d"]];
+  let cx = x - 6;
+  for (const [cls, label] of rows) {
+    g.appendChild(el("path", { d: `M ${cx} ${y} L ${cx + 30} ${y}`, class: `edge ${cls}`, style: "opacity:1", "stroke-width": 3 }));
+    g.appendChild(el("text", { x: cx + 36, y: y + 5, class: "legend-text" }, label));
+    cx += label.length > 6 ? 150 : 100;
+  }
+  g.appendChild(el("path", { d: `M ${cx} ${y} L ${cx + 30} ${y}`, class: "edge neg lead-fast", style: "opacity:1", "stroke-width": 3 }));
+  g.appendChild(el("text", { x: cx + 36, y: y + 5, class: "legend-text" }, "Negative"));
   return g;
 }
 
@@ -261,9 +277,9 @@ function buildScene(payload, language) {
     const neg = e.bestR < 0;
     const path = el("path", {
       d: `M ${geo.a.x} ${geo.a.y} Q ${geo.c.x} ${geo.c.y} ${geo.b.x} ${geo.b.y}`,
-      class: neg ? "edge neg" : "edge",
+      class: `edge ${leadClass(e.lead)}${neg ? " neg" : ""}`,
       "stroke-width": (0.8 + 5.4 * Math.abs(e.bestR)).toFixed(2),
-      "marker-end": neg ? "url(#arrowNeg)" : "url(#arrow)",
+      "marker-end": `url(#${markerId(e.lead, neg)})`,
       "data-edge": i,
     });
     const label = el("text", {
@@ -451,9 +467,9 @@ async function buildCompare() {
       const neg = e.bestR < 0;
       g.appendChild(el("path", {
         d: `M ${geo.a.x} ${geo.a.y} Q ${geo.c.x} ${geo.c.y} ${geo.b.x} ${geo.b.y}`,
-        class: neg ? "edge neg" : "edge",
+        class: `edge ${leadClass(e.lead)}${neg ? " neg" : ""}`,
         "stroke-width": (0.5 + 2.6 * Math.abs(e.bestR)).toFixed(2),
-        "marker-end": neg ? "url(#arrowNeg)" : "url(#arrow)",
+        "marker-end": `url(#${markerId(e.lead, neg)})`,
       }));
     }
     for (const node of payload.nodes) {
@@ -582,6 +598,8 @@ const EXPORT_CSS = `
     .node.selected circle { stroke: #111; stroke-width: 3; }
     .edge { fill: none; stroke: #0072bd; stroke-linecap: round; opacity: .43; }
     .edge.neg { stroke: #d95319; stroke-dasharray: 6 4; }
+    .edge.lead-mid { stroke: #4F9FD9; } .edge.lead-slow { stroke: #8ABEE6; }
+    .edge.neg.lead-mid { stroke: #EE8A5E; } .edge.neg.lead-slow { stroke: #F2B08F; }
     .edge.hidden, .edge-label.hidden { display: none; }
     .edge-label { fill: #0072bd; font-size: 8px; font-weight: 700; paint-order: stroke; stroke: white; stroke-width: 3px; stroke-linejoin: round; }
     .edge-label.neg { fill: #d95319; }
