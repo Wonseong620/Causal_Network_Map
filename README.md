@@ -22,7 +22,7 @@ The page has three columns: filters on the left (Data, Edges, Display, Export), 
 - **Edge significance** restricts edges to BH-FDR-significant pairs (v5) or TY-significant pairs (v3), raw p < 0.05, or shows all correlations.
 - **Edge display: Hover / selected node** shows only edges incident to the hovered or clicked (locked) sector; the **role** filter isolates edges the sector leads or lags. Nodes are keyboard-accessible (Tab + Enter). Edge labels (`+d`, source lead days) appear when at most 60 edges are visible and always for a focused node.
 - The side panel shows a 7 x 7 matrix of visible edges by sector group (row leads column), and a focused node is named beside the ring.
-- **Compare all (2 x 2)** renders all four language networks under matched filters — the layout used for the four-language comparison figure in the manuscript.
+- **Compare all (2 x 2)** renders all four language networks under matched filters — the layout used for the four-language comparison figure in the manuscript. Hovering or clicking a sector in any panel highlights it in all four, keeping only its incident edges (the role filter applies), and the sector card lists its lead/lag counts per language.
 - **Export** downloads the current view as PNG (2200 px wide) or SVG.
 
 Node colours mark the seven ICIO V1 sector groups (agriculture & mining 1–8, light & process manufacturing 9–19, machinery & transport equipment 20–27, utilities & construction 28–30, trade, transport & logistics 31–37, information, finance & business services 38–44, public & social services 45–50); the outer arcs trace the same groups. The palette is shared with the manuscript figures and was checked for colour-vision deficiency on adjacent arcs.

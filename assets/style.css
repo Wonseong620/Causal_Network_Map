@@ -237,7 +237,9 @@ table.gm td { text-align: center; padding: 3px 0; border: 1px solid #fff; min-wi
   stroke-linejoin: round;
 }
 .node.small text { font-size: 7px; }
-.node.small { cursor: default; }
+.node.small { cursor: pointer; }
+.node.small.focus circle { stroke: #111; stroke-width: 2; }
+.node.small.selected circle { stroke: #111; stroke-width: 2.4; }
 .node.dim circle { opacity: .22; }
 .node.dim text { opacity: .25; }
 

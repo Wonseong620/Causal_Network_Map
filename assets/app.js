@@ -59,6 +59,7 @@ const cache = new Map();       // "<dataset>/<language>" -> payload
 let hoverNode = null;
 let selectedNode = null;
 let scene = null;              // built DOM references for current filter set
+let compareScene = null;       // per-panel DOM references in the 2x2 view
 
 // ---------- data ----------
 async function loadLanguage(language) {
@@ -521,6 +522,7 @@ async function buildCompare() {
   const centers = [[260, top + 215], [740, top + 215], [260, top + 690], [740, top + 690]];
   const scale = 0.46;
   const panelLabels = ["(a)", "(b)", "(c)", "(d)"];
+  const panels = [];
   langs.forEach((lang, i) => {
     const payload = payloads[i];
     const [cx, cy] = centers[i];
@@ -534,35 +536,42 @@ async function buildCompare() {
       g.appendChild(el("text", { x: cx, y: cy + 5, class: "empty-msg" }, "No selected edges"));
     }
     const radiusByV1 = new Map(payload.nodes.map(d => [d.v1, nodeRadius(d.total, maxTotal, scale)]));
+    const panel = { lang, payload, edgeEls: [], nodeEls: new Map() };
     for (const e of edges) {
       const a = polarPosition(e.s, cx, cy, scale);
       const b = polarPosition(e.t, cx, cy, scale);
       const geo = trimmedCurve(a, b, radiusByV1.get(e.s), radiusByV1.get(e.t));
       const neg = e.bestR < 0;
-      g.appendChild(el("path", {
+      const path = el("path", {
         d: `M ${geo.a.x} ${geo.a.y} Q ${geo.c.x} ${geo.c.y} ${geo.b.x} ${geo.b.y}`,
         class: `edge ${leadClass(e.lead)}${neg ? " neg" : ""}`,
         "stroke-width": (0.5 + 2.6 * Math.abs(e.bestR)).toFixed(2),
         "marker-end": `url(#${markerId(e.lead, neg)})`,
-      }));
+      });
+      g.appendChild(path);
+      panel.edgeEls.push({ path, e });
     }
     for (const node of payload.nodes) {
       const p = polarPosition(node.v1, cx, cy, scale);
-      const ng = el("g", { class: "node small" });
+      const ng = el("g", { class: "node small", "data-v1": node.v1, tabindex: "0", role: "button" });
+      ng.setAttribute("aria-label", `${lang}: sector V1 ${node.v1}: ${node.industry}`);
       ng.appendChild(el("circle", {
         cx: p.x, cy: p.y, r: radiusByV1.get(node.v1).toFixed(2),
         fill: sectorColor(node.v1),
       }));
       ng.appendChild(el("text", { x: p.x, y: p.y }, String(node.v1)));
       g.appendChild(ng);
+      panel.nodeEls.set(node.v1, ng);
     }
+    panels.push(panel);
     svg.appendChild(g);
   });
   if (PAPER) svg.appendChild(svgLegend(985));
   scene = null;
+  compareScene = { panels };
   const box = document.getElementById("groupMatrix");
   if (box) box.innerHTML = "";
-  renderNodeCard(null, 0);
+  updateCompareHighlight();
   tableEdges = [];
   document.getElementById("edgeTableCount").textContent = "";
   document.getElementById("edgeTable").innerHTML = `<tbody><tr><td class="empty">Switch to a single language to list edges</td></tr></tbody>`;
@@ -570,6 +579,51 @@ async function buildCompare() {
   stats.nodeCount.textContent = "-";
   stats.meanR.textContent = "-";
   stats.meanLead.textContent = "-";
+}
+
+/* Same sector highlighted in all four panels: incident edges stay, the
+ * rest fade; the role filter applies as in the single view. */
+function updateCompareHighlight() {
+  if (!compareScene) return;
+  const active = selectedNode ?? hoverNode;
+  const role = controls.nodeRole.value;
+  const counts = [];
+  for (const panel of compareScene.panels) {
+    const linked = new Set();
+    let out = 0, inn = 0;
+    for (const { path, e } of panel.edgeEls) {
+      let show = true;
+      if (active) {
+        show = role === "lead" ? e.s === active : role === "lag" ? e.t === active : (e.s === active || e.t === active);
+      }
+      path.classList.toggle("hidden", !show);
+      if (show && active) { linked.add(e.s); linked.add(e.t); if (e.s === active) out++; if (e.t === active) inn++; }
+    }
+    for (const [v1, g] of panel.nodeEls) {
+      g.classList.toggle("selected", v1 === selectedNode);
+      g.classList.toggle("focus", active !== null && active !== undefined && v1 === active);
+      g.classList.toggle("dim", !!active && v1 !== active && !linked.has(v1));
+    }
+    counts.push({ lang: panel.lang, out, inn });
+  }
+  renderCompareCard(active, counts);
+}
+
+function renderCompareCard(active, counts) {
+  const body = document.getElementById("nodeCardBody");
+  if (!body) return;
+  const n = active ? compareScene.panels[0].payload.nodes.find(d => d.v1 === active) : null;
+  if (!n) {
+    body.innerHTML = "Hover or click a node in any panel to highlight that sector in all four languages.";
+    return;
+  }
+  const g = groupOf(n.v1);
+  body.innerHTML =
+    `<div class="name">V1 ${n.v1} \u00b7 ${n.code}</div>` +
+    `<div>${n.industry}</div>` +
+    `<div class="grp"><i style="background:${g.color}"></i>${g.label}</div>` +
+    `<dl>` + counts.map(c => `<dt>${c.lang}</dt><dd>leads ${c.out} \u00b7 lags ${c.inn}</dd>`).join("") +
+    `<dt>Locked</dt><dd>${selectedNode === n.v1 ? "yes" : "no"}</dd></dl>`;
 }
 
 // ---------- render orchestration ----------
@@ -585,9 +639,12 @@ function syncDatasetUi() {
 async function render({ rebuild = true } = {}) {
   syncDatasetUi();
   if (controls.view.value === "compare") {
-    await buildCompare();
+    if (rebuild || !compareScene) await buildCompare();
+    else updateCompareHighlight();
+    if (compareScene) fillSectorList(compareScene.panels[0].payload.nodes);
     return;
   }
+  compareScene = null;
   const language = controls.language.value;
   document.title = `${language} Media Lead-Lag by Sectors`;
   document.getElementById("corrValue").textContent = Number(controls.corr.value).toFixed(2);
@@ -604,6 +661,13 @@ async function render({ rebuild = true } = {}) {
 // ---------- event delegation ----------
 svg.addEventListener("pointerover", evt => {
   const nodeG = evt.target.closest(".node[data-v1]");
+  if (nodeG && compareScene) {
+    hoverNode = Number(nodeG.dataset.v1);
+    updateCompareHighlight();
+    const n = compareScene.panels[0].payload.nodes.find(d => d.v1 === hoverNode);
+    if (n) showTip(evt, `<b>V1 ${n.v1} ${n.code}</b><br>${n.industry}<br><i>${groupOf(n.v1).label}</i>`);
+    return;
+  }
   if (nodeG) {
     hoverNode = Number(nodeG.dataset.v1);
     updateInteraction();
@@ -626,7 +690,7 @@ svg.addEventListener("pointerout", evt => {
   const nodeG = evt.target.closest(".node[data-v1]");
   if (nodeG && !nodeG.contains(evt.relatedTarget)) {
     hoverNode = null;
-    updateInteraction();
+    if (compareScene) updateCompareHighlight(); else updateInteraction();
   }
   hideTip();
 });
@@ -636,7 +700,7 @@ svg.addEventListener("click", evt => {
   const v1 = Number(nodeG.dataset.v1);
   selectedNode = selectedNode === v1 ? null : v1;
   syncSectorBox();
-  updateInteraction();
+  if (compareScene) updateCompareHighlight(); else updateInteraction();
 });
 svg.addEventListener("keydown", evt => {
   const nodeG = evt.target.closest(".node[data-v1]");
@@ -644,13 +708,15 @@ svg.addEventListener("keydown", evt => {
   evt.preventDefault();
   const v1 = Number(nodeG.dataset.v1);
   selectedNode = selectedNode === v1 ? null : v1;
-  updateInteraction();
+  syncSectorBox();
+  if (compareScene) updateCompareHighlight(); else updateInteraction();
 });
 
 function syncSectorBox() {
   const box = document.getElementById("sectorFind");
-  if (!box || !scene) return;
-  const n = selectedNode ? scene.payload.nodes.find(d => d.v1 === selectedNode) : null;
+  const nodes = scene?.payload.nodes ?? compareScene?.panels[0].payload.nodes;
+  if (!box || !nodes) return;
+  const n = selectedNode ? nodes.find(d => d.v1 === selectedNode) : null;
   box.value = n ? `${n.v1} \u2014 ${n.industry.split(";")[0]}` : "";
 }
 
@@ -767,22 +833,19 @@ function fillSectorList(nodes) {
   sectorListFilled = true;
 }
 function findSector(text) {
-  if (!scene) return null;
+  const nodes = scene?.payload.nodes ?? compareScene?.panels[0].payload.nodes;
+  if (!nodes) return null;
   const t = text.trim().toLowerCase();
   if (!t) return null;
   const m = t.match(/^(\d{1,2})\b/);
   if (m) { const v = Number(m[1]); if (v >= 1 && v <= 50) return v; }
-  const hit = scene.payload.nodes.find(n => n.industry.toLowerCase().includes(t) || n.code.toLowerCase() === t);
+  const hit = nodes.find(n => n.industry.toLowerCase().includes(t) || n.code.toLowerCase() === t);
   return hit ? hit.v1 : null;
 }
 async function selectSector(v1) {
-  if (controls.view.value === "compare") {
-    controls.view.value = "single";
-    await render({ rebuild: true });
-  }
   selectedNode = v1;
   syncSectorBox();
-  updateInteraction();
+  if (compareScene) updateCompareHighlight(); else updateInteraction();
   scene?.nodeEls.get(v1)?.focus({ preventScroll: true });
 }
 sectorFind.addEventListener("change", () => {
@@ -790,12 +853,12 @@ sectorFind.addEventListener("change", () => {
   if (v1) selectSector(v1);
   else if (sectorFind.value.trim()) showToast("No sector matches");
 });
-sectorFind.addEventListener("keydown", evt => {
-  if (evt.key === "Escape") { sectorFind.value = ""; selectedNode = null; updateInteraction(); }
-});
-document.getElementById("sectorClear").addEventListener("click", () => {
-  sectorFind.value = ""; selectedNode = null; updateInteraction();
-});
+function clearSelection() {
+  sectorFind.value = ""; selectedNode = null;
+  if (compareScene) updateCompareHighlight(); else updateInteraction();
+}
+sectorFind.addEventListener("keydown", evt => { if (evt.key === "Escape") clearSelection(); });
+document.getElementById("sectorClear").addEventListener("click", clearSelection);
 
 // ---------- share link / small screens ----------
 function showToast(msg) {
