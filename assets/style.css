@@ -196,6 +196,20 @@ aside {
 }
 
 .matrix-wrap { display: grid; gap: 8px; }
+.edge-table-wrap { display: grid; gap: 8px; }
+.row-between { display: flex; justify-content: space-between; align-items: center; }
+button.small { height: 24px; font-size: 11px; padding: 0 8px; }
+.edge-table-scroll { max-height: 260px; overflow: auto; border: 1px solid var(--line); border-radius: 6px; }
+table.et { border-collapse: collapse; width: 100%; font-size: 11px; font-variant-numeric: tabular-nums; }
+table.et th { position: sticky; top: 0; background: var(--panel); font-weight: 800; text-align: right; padding: 5px 6px; cursor: pointer; user-select: none; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.et th:first-child, table.et td:first-child { text-align: left; }
+table.et th.sorted::after { content: " \25BE"; color: var(--blue); }
+table.et th.sorted.asc::after { content: " \25B4"; }
+table.et td { padding: 4px 6px; text-align: right; border-bottom: 1px solid #eef1f4; white-space: nowrap; }
+table.et tr:hover td { background: #f1f6fb; }
+table.et .neg { color: var(--orange); }
+table.et .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+table.et .empty { color: var(--muted); text-align: center; padding: 14px 6px; }
 table.gm { border-collapse: collapse; font-size: 11px; font-variant-numeric: tabular-nums; width: 100%; }
 table.gm th { font-weight: 800; padding: 2px; text-align: center; }
 table.gm td { text-align: center; padding: 3px 0; border: 1px solid #fff; min-width: 26px; color: var(--ink); }
@@ -217,6 +231,10 @@ table.gm td { text-align: center; padding: 3px 0; border: 1px solid #fff; min-wi
   text-anchor: middle;
   dominant-baseline: central;
   pointer-events: none;
+  paint-order: stroke;
+  stroke: rgba(0,0,0,.35);
+  stroke-width: 1.6px;
+  stroke-linejoin: round;
 }
 .node.small text { font-size: 7px; }
 .node.small { cursor: default; }

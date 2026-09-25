@@ -13,13 +13,13 @@ const SVG_NS = "http://www.w3.org/2000/svg";
  * (figures_code/qq_style.py) and were validated for colour-vision
  * deficiency on adjacent arcs. */
 const GROUPS = [
-  { key: "primary",   label: "Agriculture & mining",                    first: 1,  last: 8,  color: "#3F9B4E" },
-  { key: "light_mfg", label: "Light & process manufacturing",           first: 9,  last: 19, color: "#7B4FBF" },
-  { key: "machinery", label: "Machinery & transport equipment",         first: 20, last: 27, color: "#E8702A" },
-  { key: "utilities", label: "Utilities & construction",                first: 28, last: 30, color: "#3A5FD9" },
-  { key: "trade",     label: "Trade, transport & logistics",            first: 31, last: 37, color: "#C8325A" },
-  { key: "info_fin",  label: "Information, finance & business services", first: 38, last: 44, color: "#D9A21B" },
-  { key: "public",    label: "Public & social services",                first: 45, last: 50, color: "#1FA8C9" },
+  { key: "primary",   label: "Agriculture & mining",                    first: 1,  last: 8,  color: "#2ECC5B" },
+  { key: "light_mfg", label: "Light & process manufacturing",           first: 9,  last: 19, color: "#9B59F5" },
+  { key: "machinery", label: "Machinery & transport equipment",         first: 20, last: 27, color: "#FF7A1F" },
+  { key: "utilities", label: "Utilities & construction",                first: 28, last: 30, color: "#3B6CFF" },
+  { key: "trade",     label: "Trade, transport & logistics",            first: 31, last: 37, color: "#F0306B" },
+  { key: "info_fin",  label: "Information, finance & business services", first: 38, last: 44, color: "#E0A400" },
+  { key: "public",    label: "Public & social services",                first: 45, last: 50, color: "#00C2E0" },
 ];
 const groupOf = v1 => GROUPS.find(g => v1 >= g.first && v1 <= g.last);
 const sectorColor = v1 => groupOf(v1).color;
@@ -368,7 +368,9 @@ function updateInteraction() {
 
   placeFocalLabel(active);
   renderNodeCard(active, rendered);
-  renderGroupMatrix(scene.edgeEls.filter(({ path }) => !path.classList.contains("hidden")).map(x => x.e));
+  const visible = scene.edgeEls.filter(({ path }) => !path.classList.contains("hidden")).map(x => x.e);
+  renderGroupMatrix(visible);
+  renderEdgeTable(visible);
 }
 
 /* Short sector name beside the focused node, placed outside the ring so
@@ -423,6 +425,60 @@ function renderNodeCard(active, rendered) {
     `<dt>Lags</dt><dd>${inn} sector${inn === 1 ? "" : "s"}</dd>` +
     `<dt>Locked</dt><dd>${selectedNode === n.v1 ? "yes" : "no"}</dd></dl>`;
 }
+
+/* Sortable table of the visible edges, with CSV export. */
+const edgeSort = { key: "r", asc: false };
+let tableEdges = [];
+const EDGE_COLS = [
+  ["s", "From"], ["t", "To"], ["lead", "Lead d"], ["r", "r"], ["p", "p"],
+];
+function renderEdgeTable(edges) {
+  const table = document.getElementById("edgeTable");
+  if (!table) return;
+  tableEdges = edges;
+  document.getElementById("edgeTableCount").textContent = edges.length ? `(${edges.length})` : "";
+  const nodes = scene?.payload.nodes ?? [];
+  const nameOf = v1 => nodes.find(d => d.v1 === v1)?.industry.split(";")[0] ?? "";
+  const k = edgeSort.key;
+  const val = e => (k === "r" ? Math.abs(e.bestR) : k === "p" ? (e.p ?? 1) : e[k]);
+  const rows = [...edges].sort((a, b) => (val(a) - val(b)) * (edgeSort.asc ? 1 : -1));
+  let html = "<thead><tr>" + EDGE_COLS.map(([key, label]) =>
+    `<th data-key="${key}" class="${key === k ? "sorted" + (edgeSort.asc ? " asc" : "") : ""}">${label}</th>`).join("") + "</tr></thead><tbody>";
+  if (!rows.length) {
+    html += `<tr><td class="empty" colspan="${EDGE_COLS.length}">No visible edges</td></tr>`;
+  }
+  for (const e of rows.slice(0, 400)) {
+    const cell = v1 => `<td title="${nameOf(v1)}"><i class="dot" style="background:${sectorColor(v1)}"></i>${v1}</td>`;
+    html += `<tr>${cell(e.s)}${cell(e.t)}<td>+${e.lead}</td>` +
+      `<td class="${e.bestR < 0 ? "neg" : ""}">${e.bestR.toFixed(3)}</td>` +
+      `<td>${e.p === null || e.p === undefined ? "" : e.p < 0.001 ? "&lt;0.001" : e.p.toFixed(3)}</td></tr>`;
+  }
+  if (rows.length > 400) html += `<tr><td class="empty" colspan="${EDGE_COLS.length}">Showing 400 of ${rows.length}; download CSV for all</td></tr>`;
+  table.innerHTML = html + "</tbody>";
+}
+document.getElementById("edgeTable").addEventListener("click", evt => {
+  const th = evt.target.closest("th[data-key]");
+  if (!th) return;
+  const key = th.dataset.key;
+  if (edgeSort.key === key) edgeSort.asc = !edgeSort.asc;
+  else { edgeSort.key = key; edgeSort.asc = key === "s" || key === "t" || key === "lead" || key === "p"; }
+  renderEdgeTable(tableEdges);
+});
+document.getElementById("edgeCsv").addEventListener("click", () => {
+  if (!scene) { showToast("Switch to a single language first"); return; }
+  const nodes = scene.payload.nodes;
+  const nameOf = v1 => nodes.find(d => d.v1 === v1)?.industry ?? "";
+  const q = v => `"${String(v).replace(/"/g, '""')}"`;
+  const lines = ["source_v1,source_industry,target_v1,target_industry,lead_days,pearson_r,ty_pvalue,ty_lag,significant"];
+  for (const e of tableEdges) {
+    lines.push([e.s, q(nameOf(e.s)), e.t, q(nameOf(e.t)), e.lead, e.bestR.toFixed(4),
+      e.p ?? "", e.pLag ?? "", e.sig ? 1 : 0].join(","));
+  }
+  const url = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" }));
+  download(url, exportName("csv").replace(/^network_/, "edges_"));
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast(`${tableEdges.length} edges exported`);
+});
 
 /* 7x7 group-to-group edge counts for the currently visible edges. */
 function renderGroupMatrix(edges) {
@@ -507,6 +563,9 @@ async function buildCompare() {
   const box = document.getElementById("groupMatrix");
   if (box) box.innerHTML = "";
   renderNodeCard(null, 0);
+  tableEdges = [];
+  document.getElementById("edgeTableCount").textContent = "";
+  document.getElementById("edgeTable").innerHTML = `<tbody><tr><td class="empty">Switch to a single language to list edges</td></tr></tbody>`;
   stats.edgeCount.textContent = "-";
   stats.nodeCount.textContent = "-";
   stats.meanR.textContent = "-";
@@ -621,7 +680,7 @@ for (const id of ["edgeMode", "nodeRole"]) {
 const EXPORT_CSS = `
     text { font-family: Arial, Helvetica, sans-serif; }
     .node circle { stroke: white; stroke-width: 1.7; }
-    .node text { fill: white; font-size: 12px; font-weight: 800; text-anchor: middle; dominant-baseline: central; }
+    .node text { fill: white; font-size: 12px; font-weight: 800; text-anchor: middle; dominant-baseline: central; paint-order: stroke; stroke: rgba(0,0,0,.35); stroke-width: 1.6px; stroke-linejoin: round; }
     .node.small text { font-size: 7px; }
     .node.dim circle, .node.dim text { opacity: .22; }
     .node.selected circle { stroke: #111; stroke-width: 3; }

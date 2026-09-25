@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Interactive Causal Network Map</title>
-  <link rel="stylesheet" href="assets/style.css?v=20260925d" />
+  <link rel="stylesheet" href="assets/style.css?v=20260925e" />
 </head>
 <body>
 <div class="app">
@@ -130,15 +130,21 @@
       <div id="groupMatrix"></div>
     </div>
 
+    <div class="edge-table-wrap">
+      <div class="legend-title row-between"><span>Visible edges <span class="value" id="edgeTableCount"></span></span>
+        <button id="edgeCsv" type="button" class="ghost small">CSV</button></div>
+      <div class="edge-table-scroll"><table class="et" id="edgeTable"></table></div>
+    </div>
+
     <div class="legend" id="groupLegend">
       <div class="legend-title">Sector groups (ICIO V1)</div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#3F9B4E"></span><span>Agriculture &amp; mining (1&ndash;8)</span></div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#7B4FBF"></span><span>Light &amp; process manufacturing (9&ndash;19)</span></div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#E8702A"></span><span>Machinery &amp; transport equipment (20&ndash;27)</span></div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#3A5FD9"></span><span>Utilities &amp; construction (28&ndash;30)</span></div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#C8325A"></span><span>Trade, transport &amp; logistics (31&ndash;37)</span></div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#D9A21B"></span><span>Information, finance &amp; business services (38&ndash;44)</span></div>
-      <div class="legend-row"><span class="swatch-dot" style="background:#1FA8C9"></span><span>Public &amp; social services (45&ndash;50)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#2ECC5B"></span><span>Agriculture &amp; mining (1&ndash;8)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#9B59F5"></span><span>Light &amp; process manufacturing (9&ndash;19)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#FF7A1F"></span><span>Machinery &amp; transport equipment (20&ndash;27)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#3B6CFF"></span><span>Utilities &amp; construction (28&ndash;30)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#F0306B"></span><span>Trade, transport &amp; logistics (31&ndash;37)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#E0A400"></span><span>Information, finance &amp; business services (38&ndash;44)</span></div>
+      <div class="legend-row"><span class="swatch-dot" style="background:#00C2E0"></span><span>Public &amp; social services (45&ndash;50)</span></div>
     </div>
 
     <div class="legend">
@@ -163,6 +169,6 @@
 </div>
 <div class="tooltip" id="tooltip"></div>
 <div class="toast" id="toast"></div>
-<script type="module" src="assets/app.js?v=20260925d"></script>
+<script type="module" src="assets/app.js?v=20260925e"></script>
 </body>
 </html>
