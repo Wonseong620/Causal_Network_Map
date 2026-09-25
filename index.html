@@ -6,8 +6,8 @@
   <title>Interactive Causal Network Map</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" />
-  <link rel="stylesheet" href="assets/style.css?v=20260925j" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" />
+  <link rel="stylesheet" href="assets/style.css?v=20260925k" />
 </head>
 <body>
 <div class="app">
@@ -139,7 +139,7 @@
     </div>
 
     <div class="matrix-wrap">
-      <div class="legend-title">Edges by sector group (row leads column)</div>
+      <div class="legend-title">Edges by sector group<br><span class="sub">(row leads column)</span></div>
       <div id="groupMatrix"></div>
     </div>
 
@@ -170,14 +170,6 @@
       <div class="legend-row"><span class="value">+d</span><span>Edge label = source lead days</span></div>
     </div>
 
-    <p class="hint">
-      Nodes are fixed radially: V1=1 at the top, then clockwise to V1=50,
-      with sector groups marked by the outer arcs. Edge labels are shown
-      when at most 60 edges are visible, and always for a focused node.
-      In hover mode, move over a node (or press Enter on a focused node) to
-      show its incident edges; the role filter isolates edges the node
-      leads or lags. Click to lock/unlock a node.
-    </p>
   </aside>
 </div>
 <dialog id="about" class="about">
@@ -215,6 +207,6 @@
 </dialog>
 <div class="tooltip" id="tooltip"></div>
 <div class="toast" id="toast"></div>
-<script type="module" src="assets/app.js?v=20260925j"></script>
+<script type="module" src="assets/app.js?v=20260925k"></script>
 </body>
 </html>
