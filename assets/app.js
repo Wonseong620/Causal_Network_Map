@@ -860,6 +860,13 @@ function clearSelection() {
 sectorFind.addEventListener("keydown", evt => { if (evt.key === "Escape") clearSelection(); });
 document.getElementById("sectorClear").addEventListener("click", clearSelection);
 
+// ---------- about dialog ----------
+const aboutDlg = document.getElementById("about");
+document.getElementById("aboutOpen").addEventListener("click", () => aboutDlg.showModal());
+document.getElementById("aboutClose").addEventListener("click", () => aboutDlg.close());
+aboutDlg.addEventListener("click", evt => { if (evt.target === aboutDlg) aboutDlg.close(); });
+if (params.get("about") === "1") aboutDlg.showModal();
+
 // ---------- share link / small screens ----------
 function showToast(msg) {
   const t = document.getElementById("toast");

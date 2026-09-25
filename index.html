@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Interactive Causal Network Map</title>
-  <link rel="stylesheet" href="assets/style.css?v=20260925g" />
+  <link rel="stylesheet" href="assets/style.css?v=20260925h" />
 </head>
 <body>
 <div class="app">
@@ -12,6 +12,7 @@
     <h1 id="pageTitle">Interactive Causal Network Map</h1>
     <span class="version" id="version">v2.1.3 &middot; data v5</span>
     <nav class="links">
+      <button id="aboutOpen" type="button" class="linkish">About / Method</button>
       <a href="https://github.com/Wonseong620/Causal_Network_Map">GitHub</a>
       <a href="https://doi.org/10.5281/zenodo.21257558">Zenodo</a>
       <a href="https://github.com/Wonseong620/Causal_Network_Map/tree/main/replication">Replication</a>
@@ -176,8 +177,41 @@
     </p>
   </aside>
 </div>
+<dialog id="about" class="about">
+  <div class="about-head">
+    <h2>About</h2>
+    <button id="aboutClose" type="button" class="ghost small" aria-label="Close">&times;</button>
+  </div>
+  <p>
+    This viewer shows lead&ndash;lag networks among 50 ICIO V1 sectors, estimated from
+    news about the 2026 Iran war in four language corpora (Arabic, Chinese, English,
+    Persian; 58,530 items, January&ndash;April 2026). It accompanies the paper
+    <em>Qualitative Shock Mapping for Quantitative Production Network Models:
+    Evidence from Iran-Related Hostilities</em> (Kim &amp; Erokhin, IIASA).
+  </p>
+  <p class="paper-link" id="paperLink">Paper link: forthcoming.</p>
+
+  <h2>Method</h2>
+  <ol class="method">
+    <li><b>Collect.</b> News items on the hostilities are gathered per language stratum with publication date, source, and risk metadata.</li>
+    <li><b>Map to sectors.</b> Each article receives a probability vector over the 50 ICIO V1 sectors (lexical TF-IDF classifier; a zero-shot LLM classifier is used for robustness). Direct industry evidence takes priority; purely political items map mainly to public administration and defence.</li>
+    <li><b>Aggregate daily.</b> Article vectors are summed per day and language, weighted by negativity and war-relatedness, then transformed to within-day shares; low-information (near-uniform) articles are excluded.</li>
+    <li><b>Test lead&ndash;lag pairs.</b> All 2,450 ordered sector pairs are tested with Toda&ndash;Yamamoto lag-augmented Granger tests on the daily series.</li>
+    <li><b>Select edges.</b> Pairs are kept if they pass Benjamini&ndash;Hochberg false-discovery-rate control at 5%; each edge is annotated with its lead (1&ndash;7 days) and the lagged Pearson correlation.</li>
+    <li><b>Draw.</b> Sectors sit on a fixed ring (V1 1 at the top, clockwise), sized by total exposure and coloured by sector group; edges are shaded by lead and dashed when the correlation is negative.</li>
+  </ol>
+
+  <h2>Data and code</h2>
+  <p>
+    Derived indicators, edge tables, and scripts are in the
+    <a href="https://github.com/Wonseong620/Causal_Network_Map/tree/main/replication">replication package</a>
+    (data CC BY 4.0, code MIT), archived on Zenodo:
+    <a href="https://doi.org/10.5281/zenodo.21257558">10.5281/zenodo.21257558</a>.
+    Raw article text is not redistributed.
+  </p>
+</dialog>
 <div class="tooltip" id="tooltip"></div>
 <div class="toast" id="toast"></div>
-<script type="module" src="assets/app.js?v=20260925g"></script>
+<script type="module" src="assets/app.js?v=20260925h"></script>
 </body>
 </html>
