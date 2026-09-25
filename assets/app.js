@@ -879,7 +879,6 @@ async function copyLink() {
   catch { prompt("Copy this link:", url); }
 }
 document.getElementById("copyLink").addEventListener("click", copyLink);
-document.getElementById("copyLinkMobile").addEventListener("click", copyLink);
 // On phones, applying a filter closes the panel so the ring is visible.
 const mobileQuery = window.matchMedia("(max-width: 820px)");
 function closeFiltersOnMobile() {

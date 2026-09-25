@@ -79,6 +79,7 @@ button.linkish:hover { text-decoration: underline; filter: none; }
 .method { margin: 6px 0 0; padding-left: 22px; display: grid; gap: 6px; }
 .method li::marker { font-weight: 800; color: var(--blue); }
 #menuToggle { display: none; }
+.share { height: 28px; padding: 0 10px; font-size: 12px; }
 
 nav.filters {
   grid-area: nav;
@@ -404,10 +405,11 @@ svg.paper .focal-label { font-size: 17px; }
   }
   header {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 1fr auto auto;
     grid-template-areas:
       "title   title  toggle"
-      "version links  links";
+      "version share  share"
+      "links   links  links";
     align-items: center;
     gap: 6px 10px;
     height: auto;
@@ -418,7 +420,7 @@ svg.paper .focal-label { font-size: 17px; }
   }
   h1 { grid-area: title; font-size: 16px; white-space: normal; }
   .version { grid-area: version; justify-self: start; font-size: 11px; flex: none; white-space: nowrap; }
-  .links { grid-area: links; justify-self: end; gap: 12px; font-size: 11px; white-space: nowrap; }
+  .links { gap: 12px; font-size: 11px; white-space: nowrap; }
   .links .long, .version .long { display: none; }
   #menuToggle {
     grid-area: toggle;
@@ -444,9 +446,8 @@ svg.paper .focal-label { font-size: 17px; }
   nav.filters section:first-child .topics { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; }
   nav.filters section:first-child .topics li:last-child { grid-column: 1 / -1; }
   .find-row, .btn-row { grid-column: 1 / -1; }
-  .btn-row { grid-template-columns: 1fr 1fr 2fr; }
-  #copyLink { display: none; }
-  .btn-row #copyLinkMobile { display: block; }
+  .share { grid-area: share; justify-self: end; height: 26px; }
+  .links { grid-area: links; justify-self: start; }
   .view-head { padding: 8px 12px 0; min-height: 0; }
   .view-title { font-size: 14px; }
   .view-sub { font-size: 11px; font-weight: 600; }
