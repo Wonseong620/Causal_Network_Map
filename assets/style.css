@@ -68,6 +68,8 @@ aside { border-left: 1px solid var(--line); background: var(--panel); padding: 1
 }
 .stat strong { font-size: 15px; font-variant-numeric: tabular-nums; }
 .legend { margin-top: 18px; display: grid; gap: 8px; font-size: 13px; color: #27313b; }
+.legend-title { font-weight: 800; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .legend-row { display: flex; align-items: center; gap: 9px; }
 .swatch-line { width: 42px; height: 0; border-top: 5px solid var(--blue); }
 .swatch-line.neg { border-top-color: var(--orange); border-top-style: dashed; }
@@ -96,12 +98,14 @@ aside { border-left: 1px solid var(--line); background: var(--panel); padding: 1
 .node.selected circle { stroke: #111; stroke-width: 3; }
 .node text {
   fill: white;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   text-anchor: middle;
   dominant-baseline: central;
   pointer-events: none;
 }
+.node.small text { font-size: 7px; }
+.node.small { cursor: default; }
 .node.dim circle { opacity: .22; }
 .node.dim text { opacity: .25; }
 
@@ -117,7 +121,7 @@ aside { border-left: 1px solid var(--line); background: var(--panel); padding: 1
 .edge.hidden, .edge-label.hidden { display: none; }
 .edge-label {
   fill: var(--blue);
-  font-size: 7px;
+  font-size: 8px;
   font-weight: 700;
   paint-order: stroke;
   stroke: white;
@@ -131,7 +135,21 @@ aside { border-left: 1px solid var(--line); background: var(--panel); padding: 1
 .subtitle { fill: #20262d; font-size: 13px; font-weight: 700; text-anchor: middle; }
 .datastamp { fill: #8a929b; font-size: 10px; text-anchor: middle; }
 .empty-msg { fill: var(--muted); font-size: 15px; font-weight: 700; text-anchor: middle; }
-.panel-title { font-size: 13px; font-weight: 800; text-anchor: middle; }
+.panel-title { font-size: 14px; font-weight: 800; text-anchor: middle; }
+.legend-text { fill: var(--ink); font-size: 12px; }
+.group-arcs path { opacity: .9; }
+
+/* ?export=paper: chrome-free print view */
+body.paper header, body.paper aside, body.paper .loading { display: none; }
+body.paper .app, body.paper main { display: block; height: auto; overflow: visible; }
+body.paper .canvas-wrap { width: 1000px; height: 1100px; margin: 0; }
+body.paper svg { width: 1000px; height: 1100px; }
+svg.paper .node text { font-size: 15px; }
+svg.paper .node.small text { font-size: 9px; }
+svg.paper .edge-label { font-size: 11px; }
+svg.paper .panel-title { font-size: 20px; }
+svg.paper .legend-text { font-size: 17px; }
+svg.paper .empty-msg { font-size: 18px; }
 
 .tooltip {
   position: fixed;

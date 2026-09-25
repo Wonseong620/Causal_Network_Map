@@ -11,6 +11,12 @@
   <header>
     <h1 id="pageTitle">Interactive Causal Network Map</h1>
     <div class="controls">
+      <label>Data
+        <select id="dataset">
+          <option value="v5">v5 (share + BH-FDR)</option>
+          <option value="v3">v3 (raw volume, legacy)</option>
+        </select>
+      </label>
       <label>Language
         <select id="language">
           <option>Arabic</option>
@@ -19,16 +25,17 @@
           <option>Persian</option>
         </select>
       </label>
-      <label>Correlation threshold (|r|): <span class="value" id="corrValue">0.70</span>
-        <input id="corr" type="range" min="0" max="1" value="0.7" step="0.01" />
+      <label>Correlation threshold (|r|): <span class="value" id="corrValue">0.00</span>
+        <input id="corr" type="range" min="0" max="1" value="0" step="0.01" />
       </label>
       <label>Max lead day: <span class="value" id="leadValue">7</span>
         <input id="lead" type="range" min="1" max="7" value="7" step="1" />
       </label>
-      <label>TY test significance
+      <label>Edge significance
         <select id="ty">
-          <option value="1">TY-significant only</option>
-          <option value="0">All correlations</option>
+          <option value="sig">BH-FDR 5% only</option>
+          <option value="p05">Raw p &lt; 0.05</option>
+          <option value="all">All correlations</option>
         </select>
       </label>
       <label>Edge display
@@ -51,7 +58,10 @@
         </select>
       </label>
       <label>Export
-        <button id="download" type="button">Download PNG</button>
+        <span class="btn-row">
+          <button id="download" type="button">PNG</button>
+          <button id="downloadSvg" type="button">SVG</button>
+        </span>
       </label>
     </div>
   </header>
@@ -65,25 +75,32 @@
       <div class="stat"><span>Linked nodes</span><strong id="nodeCount">0</strong></div>
       <div class="stat"><span>Mean visible |r|</span><strong id="meanR">0.00</strong></div>
       <div class="stat"><span>Mean lead day</span><strong id="meanLead">0.0</strong></div>
+      <div class="legend" id="groupLegend">
+        <div class="legend-title">Sector groups (ICIO V1)</div>
+        <div class="legend-row"><span class="swatch-dot" style="background:#5E9422"></span><span>Agriculture &amp; mining (1&ndash;8)</span></div>
+        <div class="legend-row"><span class="swatch-dot" style="background:#7E2F8E"></span><span>Light &amp; process manufacturing (9&ndash;19)</span></div>
+        <div class="legend-row"><span class="swatch-dot" style="background:#D95319"></span><span>Machinery &amp; transport equipment (20&ndash;27)</span></div>
+        <div class="legend-row"><span class="swatch-dot" style="background:#0072BD"></span><span>Utilities &amp; construction (28&ndash;30)</span></div>
+        <div class="legend-row"><span class="swatch-dot" style="background:#A2142F"></span><span>Trade, transport &amp; logistics (31&ndash;37)</span></div>
+        <div class="swatch-row legend-row"><span class="swatch-dot" style="background:#C9960C"></span><span>Information, finance &amp; business services (38&ndash;44)</span></div>
+        <div class="legend-row"><span class="swatch-dot" style="background:#2E9FD8"></span><span>Public &amp; social services (45&ndash;50)</span></div>
+      </div>
       <div class="legend">
         <div class="legend-row"><span class="swatch-line"></span><span>Positive lead-lag correlation</span></div>
         <div class="legend-row"><span class="swatch-line neg"></span><span>Negative lead-lag correlation</span></div>
-        <div class="legend-row"><span class="swatch-dot"></span><span>Node size = total soft occurrence</span></div>
+        <div class="legend-row"><span class="swatch-dot"></span><span>Node size = total sector exposure</span></div>
         <div class="legend-row"><span class="value">+d</span><span>Edge label = source lead days</span></div>
       </div>
       <p class="hint">
-        Nodes are fixed radially: V1=1 at the top, then clockwise to V1=50.
-        Edges are selected by the largest |r| within the lead window; dashed
-        orange edges have negative correlation. In hover mode, move over a
+        Nodes are fixed radially: V1=1 at the top, then clockwise to V1=50,
+        with sector groups marked by the outer arcs. Dashed orange edges have
+        negative correlation. Edge labels (+d = source lead days) are shown
+        when at most 60 edges are visible, and always for a focused node. In hover mode, move over a
         node (or press Enter on a focused node) to show its incident edges;
         the role filter isolates edges the node leads or lags. Click to
         lock/unlock a node.
       </p>
-      <div class="data-note" id="dataNote">
-        Data: TY v3 (raw volume series). An updated analysis
-        (share-transformed series, FDR-selected edges) is in progress and
-        will replace this dataset.
-      </div>
+      <div class="data-note" id="dataNote"></div>
     </aside>
   </main>
 </div>
