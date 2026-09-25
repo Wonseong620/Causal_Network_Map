@@ -4,13 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Interactive Causal Network Map</title>
-  <link rel="stylesheet" href="assets/style.css?v=20260925f" />
+  <link rel="stylesheet" href="assets/style.css?v=20260925g" />
 </head>
 <body>
 <div class="app">
   <header>
     <h1 id="pageTitle">Interactive Causal Network Map</h1>
-    <span class="version" id="version">v1.1.0 &middot; data v5</span>
+    <span class="version" id="version">v2.1.3 &middot; data v5</span>
     <nav class="links">
       <a href="https://github.com/Wonseong620/Causal_Network_Map">GitHub</a>
       <a href="https://doi.org/10.5281/zenodo.21257558">Zenodo</a>
@@ -20,6 +20,17 @@
   </header>
 
   <nav class="filters" id="filters">
+    <section>
+      <h2>Topic</h2>
+      <ul class="topics" id="topics">
+        <li><button type="button" class="topic tbd" data-topic="2020_covid19" disabled>2020_COVID-19 pandemic <span>TBD</span></button></li>
+        <li><button type="button" class="topic tbd" data-topic="2022_ukraine_war" disabled>2022_Ukraine war <span>TBD</span></button></li>
+        <li><button type="button" class="topic tbd" data-topic="2023_gaza_war" disabled>2023_Gaza war <span>TBD</span></button></li>
+        <li><button type="button" class="topic tbd" data-topic="2024_red_sea_crisis" disabled>2024_Red Sea crisis <span>TBD</span></button></li>
+        <li><button type="button" class="topic active" data-topic="2026_iran_war" aria-current="true">2026_Iran war</button></li>
+      </ul>
+    </section>
+
     <section>
       <h2>Data</h2>
       <label>Dataset
@@ -169,6 +180,6 @@
 </div>
 <div class="tooltip" id="tooltip"></div>
 <div class="toast" id="toast"></div>
-<script type="module" src="assets/app.js?v=20260925f"></script>
+<script type="module" src="assets/app.js?v=20260925g"></script>
 </body>
 </html>

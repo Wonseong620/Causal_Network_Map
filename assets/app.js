@@ -629,7 +629,7 @@ function renderCompareCard(active, counts) {
 // ---------- render orchestration ----------
 function syncDatasetUi() {
   const ds = controls.dataset.value;
-  document.getElementById("version").textContent = `v1.1.0 \u00b7 data ${ds}`;
+  document.getElementById("version").textContent = `v2.1.3 \u00b7 data ${ds}`;
   controls.ty.querySelector('option[value="sig"]').textContent = DATASETS[ds].sigLabel;
   document.getElementById("dataNote").textContent = ds === "v5"
     ? "Data: v5 - within-day share-transformed series; edges selected by Benjamini-Hochberg FDR (5%) over all 2,450 ordered sector pairs. Specification of record for the manuscript."

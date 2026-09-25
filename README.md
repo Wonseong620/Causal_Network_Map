@@ -14,6 +14,8 @@ https://wonseong620.github.io/Causal_Network_Map/
 
 ### Usage
 
+The **Topic** list at the top of the filters is ordered by year (`yyyy_event`). The current dataset covers the 2026 Iran war; the other global events listed (COVID-19, Ukraine war, Gaza war, Red Sea shipping crisis) are placeholders marked TBD until their corpora are processed.
+
 The page has three columns: filters on the left (Data, Edges, Display, Export), the network in the centre, and results on the right (selected sector card, summary statistics, edges by sector group, legends). Below 1240px the results move under the network; below 820px the filters collapse behind a **Filters** button.
 
 - **Data** selects the dataset: **v5** (share-transformed series, BH-FDR edge selection; the manuscript's specification of record) or the legacy **v3** (raw volume series).
